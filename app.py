@@ -91,7 +91,7 @@ def SearchFunctions():
             FunctionsDetails += "Name: " + f['Name'] + "\n"
             FunctionsDetails += "Desc: " + f['Description'] + "\n"
             FunctionsDetails += "Para: " + ', '.join(f['Parameters']) + "\n\n"
-            #FunctionsDetails += f['Code'] + "\n\n"
+            FunctionsDetails += '\n'.join(f['Code']) + "\n\n"
             fi += 1
         FunctionDetailsText.set(FunctionsDetails)
     else:
