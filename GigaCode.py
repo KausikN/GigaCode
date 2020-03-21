@@ -6,9 +6,7 @@ import os
 import re
 
 def ExtractFunctionsFromFile_Python(file_path='', file_obj=None, tabSpace=4):
-	'''
-Extracts Functions (NOT CLASS FUNCTIONS) from a python file
-	'''
+	''' Extracts Functions (NOT CLASS FUNCTIONS) from a python file '''
 	Functions = []
 
 	# Read Text of File
@@ -47,7 +45,7 @@ Extracts Functions (NOT CLASS FUNCTIONS) from a python file
 				stripped_line = stripped_line[3:]
 				if stripped_line.endswith(InFunctionDesc):
 					InFunctionDesc = None
-					curFunctionDesc += stripped_line[:-2]
+					curFunctionDesc = curFunctionDesc[:-3]
 				continue
 			elif stripped_line.startswith('"""'):
 				InFunctionDesc = '"""'
@@ -55,7 +53,7 @@ Extracts Functions (NOT CLASS FUNCTIONS) from a python file
 				stripped_line = stripped_line[3:]
 				if stripped_line.endswith(InFunctionDesc):
 					InFunctionDesc = None
-					curFunctionDesc += stripped_line[:-2]
+					curFunctionDesc = curFunctionDesc[:-3]
 				continue
 
 
@@ -69,10 +67,10 @@ Extracts Functions (NOT CLASS FUNCTIONS) from a python file
 			else:
 				#print("curclose:", line)
 				curFunction = {}
-				curFunction['Name'] = curFunctionName
+				curFunction['Name'] = curFunctionName.strip()
 				curFunction['Parameters'] = curFunctionParams
 				curFunction['Code'] = curFunctionLines
-				curFunction['Description'] = curFunctionDesc
+				curFunction['Description'] = curFunctionDesc.strip()
 				Functions.append(curFunction)
 				curFunctionName = ''
 				curFunctionParams = []
@@ -89,19 +87,23 @@ Extracts Functions (NOT CLASS FUNCTIONS) from a python file
 			curFunctionDesc = ''
 			curFunctionLines.append(line)
 			# Find name and parameters of function
-			curFunctionName = re.findall('^def(.*)\(', line.strip())[0].strip()
-			curFunctionParams = (re.findall('^def.*\((.*)\)', line.strip())[0].strip()).split(',')
+			curFunctionName = re.findall('^def([^(]*)\(', line.strip())[0].strip()
+			curFunctionParams = (re.findall('^def[^(]*\((.*)\)', line.strip())[0].strip()).split(',')
 			for pi in range(len(curFunctionParams)):
 				curFunctionParams[pi] = curFunctionParams[pi].strip()
 
 	return Functions
 
+
+
 # Driver Code
-Functions = ExtractFunctionsFromFile_Python('GigaCode.py', tabSpace=4)
-for f in Functions:
-	print(f['Name'])
-	print(f['Description'])
-	print(f['Parameters'])
-	for fl in f['Code']:
-		print(fl)
-	print('\n\n')
+# Functions = ExtractFunctionsFromFile_Python('GigaCode.py', tabSpace=4)
+# import pickle
+# Functions = pickle.load(open('FunctionDatabases/PythonTestDB.p', 'rb'))
+# for f in Functions:
+# 	print('\n\n')
+# 	print("Name:", f['Name'])
+# 	print("Desc:", f['Description'])
+# 	print("Parameters:", f['Parameters'])
+# 	for fl in f['Code']:
+# 		print(fl)
