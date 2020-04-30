@@ -21,9 +21,10 @@ DBFile_Path = ''
 Functions = None
 FunctionHashMap = None
 
+SearchMethod = "Substring" # Can be ["Regex", "Substring", "Direct"]
+
 
 # Utils
-
 
 # TKinter Window
 def CreateWindow():
@@ -51,6 +52,9 @@ def CreateWindow():
     FunctionDetailsLabel.grid(row=curRow, column=1)
     curRow += 1
 
+def ScrollFunction(event):
+    canvas.configure(scrollregion=canvas.bbox("all"),width=200,height=200)
+
 def SelectFileDialogBox_DBFile():
     global curRow
     global MainLabelText_DB
@@ -76,6 +80,7 @@ def SearchFunctions():
     global FunctionNameTextField
     global FunctionDetailsText
     global FunctionHashMap
+    global SearchMethod
 
     if FunctionHashMap == None:
         FunctionDetailsText.set("Select a DB File First")
@@ -84,18 +89,37 @@ def SearchFunctions():
     RequiredFunctionName = str(FunctionNameTextField.get()).strip()
     FunctionsDetails = ""
 
-    if RequiredFunctionName in FunctionHashMap.keys():
-        fi = 1
-        for f in FunctionHashMap[RequiredFunctionName]:
-            FunctionsDetails += str(fi) + ") " + "\n"
-            FunctionsDetails += "Name: " + f['Name'] + "\n"
-            FunctionsDetails += "Desc: " + f['Description'] + "\n"
-            FunctionsDetails += "Para: " + ', '.join(f['Parameters']) + "\n\n"
-            FunctionsDetails += '\n'.join(f['Code']) + "\n\n"
-            fi += 1
-        FunctionDetailsText.set(FunctionsDetails)
-    else:
-        FunctionDetailsText.set("No Functions of that Name")
+    if SearchMethod == "Direct":
+        if RequiredFunctionName in FunctionHashMap.keys():
+            fi = 1
+            for f in FunctionHashMap[RequiredFunctionName]:
+                FunctionsDetails += str(fi) + ") " + "\n"
+                FunctionsDetails += "Name: " + f['Name'] + "\n"
+                FunctionsDetails += "Desc: " + f['Description'] + "\n"
+                FunctionsDetails += "Para: " + ', '.join(f['Parameters']) + "\n\n"
+                FunctionsDetails += '\n'.join(f['Code']) + "\n\n"
+                fi += 1
+            FunctionDetailsText.set(FunctionsDetails)
+        else:
+            FunctionDetailsText.set("No Functions of that Name")
+    elif SearchMethod == "Substring":
+        matches = 0
+        for key in FunctionHashMap.keys():
+            if RequiredFunctionName in key:
+                fi = 1
+                for f in FunctionHashMap[key]:
+                    FunctionsDetails += str(fi) + ") " + "\n"
+                    FunctionsDetails += "Name: " + f['Name'] + "\n"
+                    FunctionsDetails += "Desc: " + f['Description'] + "\n"
+                    FunctionsDetails += "Para: " + ', '.join(f['Parameters']) + "\n\n"
+                    FunctionsDetails += '\n'.join(f['Code']) + "\n\n"
+                    fi += 1
+                matches += 1
+        if matches > 0:
+            FunctionDetailsText.set(FunctionsDetails)
+        else:
+            FunctionDetailsText.set("No Functions of that Name")
+        
     
 
 def GenerateFunctionHashMap(Functions):
