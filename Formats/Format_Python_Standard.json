@@ -1,0 +1,14 @@
+{
+    "ID_FuncStart": "#FS",
+    "ID_FuncEnd": "#FE",
+
+    "ID_DescStart": "#DS",
+    "ID_DescEnd": "#DE",
+    "Strip_DescStart": "#",
+
+    "ID_ImportsStart": "#IS",
+    "ID_ImportsEnd": "#IE",
+
+    "Data_FuncName": "^def([^(]*)\\(",
+    "Data_FuncParams": "^def[^(]*\\((.*)\\)"
+}

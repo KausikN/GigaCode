@@ -5,6 +5,7 @@ Add to Database App for GigaCode Function Database for Python Codes
 import GigaCode
 
 import os
+import json
 import tkinter as tk
 from tkinter import *
 import pickle
@@ -20,6 +21,8 @@ DBFile_Text = None
 DBNameTextField = None
 
 DBFile_Path = ''
+
+config = json.load(open('config.json', 'rb'))
 
 
 # Utils
@@ -132,7 +135,7 @@ def Add2DB():
         if Functions == None:
             Functions = []
         for filepath in tqdm(OpenedFiles):
-            Functions.extend(GigaCode.ExtractFunctionsFromFile_Python(file_path=filepath))
+            Functions.extend(GigaCode.ExtractPythonFunctions(file_path=filepath, formatJSONPath=config['PythonFormatPath'], tabSpace=config['tabSpace']))
         pickle.dump(Functions, open(DBFile_Path, 'wb'))
         MainLabelText_DB.set("Finished Adding Functions")
     else:

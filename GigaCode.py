@@ -4,218 +4,151 @@ GigaCode Functions for Function Database
 '''
 import os
 import re
+import json
 
-def ExtractFunctionsFromFile_Python(file_path='', file_obj=None, tabSpace=4):
-	''' Extracts Functions (NOT CLASS FUNCTIONS) from a python file '''
-	Functions = []
+# Main Classes
+class Function:
+    def __init__(self, name, params, desc, imports, code):
+        self.name = name
+        self.params = params
+        self.desc = desc
+        self.imports = imports
+        self.code = code
+    
+    def getCode(self):
+        codeText = ''
 
-	# Read Text of File
-	if file_obj == None:
-		file_obj = open(file_path, 'r')
-	
-	file_text = file_obj.read()
+        # Name and Params
+        codeText = "def " + self.name + "(" + self.params + "):"
+        codeText = codeText + "\n"
 
-	# As Python Split by \n
-	code_lines = file_text.split('\n')
+        # Desc
+        for dl in self.desc:
+            codeText = codeText + "    # " + dl
+            codeText = codeText + "\n"
 
-	# Loop and identify functions
-	tabAlernateSpaces = ' ' * tabSpace
-	InFunction = False
-	InFunctionDesc = None
-	curFunctionName = ''
-	curFunctionParams = []
-	curFunctionLines = []
-	curFunctionDesc = ''
-	for line in code_lines:
-		if InFunction:
-			# Check if Description Line
-			stripped_line = re.findall('^\t*(.*)', line.strip())[0]
-			if not InFunctionDesc == None:
-				if stripped_line.endswith(InFunctionDesc):
-					InFunctionDesc = None
-					curFunctionDesc += stripped_line[:-3]
-					continue
-				else:
-					curFunctionDesc += line
-					continue
+        codeText = codeText + "\n"
 
-			if stripped_line.startswith("'''"):
-				InFunctionDesc = "'''"
-				curFunctionDesc += stripped_line[3:]
-				stripped_line = stripped_line[3:]
-				if stripped_line.endswith(InFunctionDesc):
-					InFunctionDesc = None
-					curFunctionDesc = curFunctionDesc[:-3]
-				continue
-			elif stripped_line.startswith('"""'):
-				InFunctionDesc = '"""'
-				curFunctionDesc += stripped_line[3:]
-				stripped_line = stripped_line[3:]
-				if stripped_line.endswith(InFunctionDesc):
-					InFunctionDesc = None
-					curFunctionDesc = curFunctionDesc[:-3]
-				continue
+        # Imports
+        for il in self.imports:
+            codeText = codeText + "    " + il
+            codeText = codeText + "\n"
 
+        codeText = codeText + "\n"
 
-			# If Starting with tab space or empty line then it is within the function
-			# If Comment always add to function code lines
-			if line.strip() == '' or (line.startswith('\t') or line.startswith(tabAlernateSpaces)) or not re.search('^#.*', line.strip()) == None:
-				#print("curapp:", line)
-				curFunctionLines.append(line)
-				continue
-			# If not starting with tab or comment or empty, end function lines
-			else:
-				#print("curclose:", line)
-				curFunction = {}
-				curFunction['Name'] = curFunctionName.strip()
-				curFunction['Parameters'] = curFunctionParams
-				curFunction['Code'] = curFunctionLines
-				curFunction['Description'] = curFunctionDesc.strip()
-				Functions.append(curFunction)
-				curFunctionName = ''
-				curFunctionParams = []
-				curFunctionLines = []
-				curFunctionDesc = ''
-				InFunction = False
-		# If starting with def, new function
-		if line.startswith('def'):
-			#print("funcstart:", line)
-			InFunction = True
-			curFunctionName = ''
-			curFunctionParams = []
-			curFunctionLines = []
-			curFunctionDesc = ''
-			curFunctionLines.append(line)
-			# Find name and parameters of function
-			curFunctionName = re.findall('^def([^(]*)\(', line.strip())[0].strip()
-			curFunctionParams = (re.findall('^def[^(]*\((.*)\)', line.strip())[0].strip()).split(',')
-			for pi in range(len(curFunctionParams)):
-				curFunctionParams[pi] = curFunctionParams[pi].strip()
+        # Code
+        for cl in self.code:
+            codeText = codeText + "    " + cl
+            codeText = codeText + "\n"
 
-	return Functions
+        codeText.rstrip('\n')
+        
+        return codeText
 
+# Main Functions
+def ExtractPythonFunctions(data=None, file_path='', formatJSONPath='Format_Python_Standard.json', tabSpace=4):
+    ''' Extracts Functions (NOT CLASS FUNCTIONS) from a python file '''
+    Functions = []
 
-class PythonParams:
-	def __init__(self):
-		self.DescriptionMarks_Start = ['"""', "'''"]
-		self.DescriptionMarks_End = ['"""', "'''"]
-		self.CommentRegeX = '^#.*'
-		self.FunctionNameRegeX = '^def([^(]*)\('
-		self.FunctionParamsRegeX = '^def[^(]*\((.*)\)'
-		self.tabAlernateSpaces = ' ' * 4
-	
-	def InFunctionBlockCheck(self, line):
-		return (line.startswith('\t') or line.startswith(self.tabAlernateSpaces))
+    FormatParams = json.load(open(formatJSONPath, 'rb'))
 
-	def NewFunctionCheck(self, line):
-		return line.startswith('def')
+    # Read Text of File
+    if data == None:
+        data = open(file_path, 'r').read()
+    
+    file_text = data
 
+    # Replace all tabs by appropriate spaces
+    file_text.replace('\t', ' ' * tabSpace)
 
-def GetLanguageParams(language):
-	params = None
-	if language == 'Python':
-		params = PythonParams()
-		return params
+    # Split by \n
+    code_lines = file_text.split('\n')
 
+    # Loop thru lines and identify functions
+    inFunc = False
+    inDesc = False
+    DescFound = False
+    inImports = False
+    curFunc = {"name": '', "params": '', "desc": [], "imports": [], "code": []}
+    for line in code_lines:
+        line_stripped = line.strip()
+        if line_stripped == '':
+            continue
 
-def ExtractFunctionsFromFile(file_path='', file_obj=None, language='Python', tabSpace=4):
-	''' Extracts Functions (NOT CLASS FUNCTIONS) from a python file '''
-	Functions = []
+        # Function Start Check
+        if not inFunc and FormatParams['ID_FuncStart'] == line_stripped:
+            inFunc = True
+            continue
+        # Function End Check
+        elif inFunc and FormatParams['ID_FuncEnd'] == line_stripped:
+            inFunc = False
+            inDesc = False
+            DescFound = False
+            inImports = False
+            f = Function(curFunc['name'], curFunc['params'], curFunc['desc'], curFunc['imports'], curFunc['code'])
+            Functions.append(f)
+            curFunc = {"name": '', "params": '', "desc": [], "imports": [], "code": []}
+            continue
+        # In Function
+        if inFunc:
+            # Desc Check
+            if not DescFound:
+                # Desc Start Check
+                if not inDesc and FormatParams['ID_DescStart'] == line_stripped:
+                    inDesc = True
+                    continue
+                # Desc End Check
+                elif inDesc and FormatParams['ID_DescEnd'] == line_stripped:
+                    inDesc = False
+                    DescFound = True
+                    continue
+                # In Desc
+                elif inDesc:
+                    if line_stripped.startswith(FormatParams['Strip_DescStart']):
+                        line_stripped = line_stripped[len(FormatParams['Strip_DescStart']):].strip()
+                    curFunc['desc'].append(line_stripped)
+                    continue
+            # Imports Start Check
+            if not inImports and FormatParams['ID_ImportsStart'] == line_stripped:
+                inImports = True
+                continue
+            # Imports End Check
+            elif inImports and FormatParams['ID_ImportsEnd'] == line_stripped:
+                inImports = False
+                continue
+            # In Imports
+            elif inImports:
+                curFunc['imports'].append(line_stripped)
+                continue
+            else:
+                # Function Name and Params
+                if len(re.findall(FormatParams['Data_FuncName'], line_stripped)) > 0:
+                    curFunc['name'] = re.findall(FormatParams['Data_FuncName'], line_stripped)[0].strip()
+                    curFunc['params'] = (re.findall(FormatParams['Data_FuncParams'], line_stripped)[0].strip())
+                # Code
+                else:
+                    linedata = line.rstrip()
+                    if line.startswith(' '*tabSpace):
+                        linedata = line[tabSpace:]
+                    curFunc['code'].append(linedata)
 
-	LanguageParams = GetLanguageParams(language)
-
-	# Read Text of File
-	if file_obj == None:
-		file_obj = open(file_path, 'r')
-	
-	file_text = file_obj.read()
-
-	# Split by \n
-	code_lines = file_text.split('\n')
-
-	# Loop and identify functions
-	tabAlernateSpaces = ' ' * tabSpace
-	LanguageParams.tabAlernateSpaces = tabAlernateSpaces
-	InFunction = False
-	InFunctionDescEnd = None
-	curFunctionName = ''
-	curFunctionParams = []
-	curFunctionLines = []
-	curFunctionDesc = ''
-	for line in code_lines:
-		if InFunction:
-			# Check if Description Line
-			stripped_line = re.findall('^\t*(.*)', line.strip())[0]
-			if not InFunctionDescEnd == None:
-				if stripped_line.endswith(InFunctionDescEnd):
-					InFunctionDescEnd = None
-					curFunctionDesc += stripped_line[:-len(InFunctionDescEnd)]
-					continue
-				else:
-					curFunctionDesc += line
-					continue
-			
-			MarkCheck = False
-			for descmarkstart, descmarkend in zip(LanguageParams.DescriptionMarks_Start, LanguageParams.DescriptionMarks_End):
-				if stripped_line.startswith(descmarkstart):
-					InFunctionDescEnd = descmarkend
-					curFunctionDesc += stripped_line[len(descmarkstart):]
-					stripped_line = stripped_line[len(descmarkstart):]
-					if stripped_line.endswith(InFunctionDescEnd):
-						InFunctionDescEnd = None
-						curFunctionDesc = curFunctionDesc[:-len(descmarkstart)]
-					MarkCheck = True
-					break
-			if MarkCheck:
-				continue
-
-			# Check if in function block
-			# If Comment always add to function code lines
-			if line.strip() == '' or (LanguageParams.InFunctionBlockCheck(line)) or not re.search(LanguageParams.CommentRegeX, line.strip()) == None:
-				#print("curapp:", line)
-				curFunctionLines.append(line)
-				continue
-			# If not within function block, end function lines
-			else:
-				#print("curclose:", line)
-				curFunction = {}
-				curFunction['Name'] = curFunctionName.strip()
-				curFunction['Parameters'] = curFunctionParams
-				curFunction['Code'] = curFunctionLines
-				curFunction['Description'] = curFunctionDesc.strip()
-				Functions.append(curFunction)
-				curFunctionName = ''
-				curFunctionParams = []
-				curFunctionLines = []
-				curFunctionDesc = ''
-				InFunction = False
-		# New function check
-		if LanguageParams.NewFunctionCheck(line):
-			#print("funcstart:", line)
-			InFunction = True
-			curFunctionName = ''
-			curFunctionParams = []
-			curFunctionLines = []
-			curFunctionDesc = ''
-			curFunctionLines.append(line)
-			# Find name and parameters of function
-			curFunctionName = re.findall(LanguageParams.FunctionNameRegeX, line.strip())[0].strip()
-			curFunctionParams = (re.findall(LanguageParams.FunctionParamsRegeX, line.strip())[0].strip()).split(',')
-			for pi in range(len(curFunctionParams)):
-				curFunctionParams[pi] = curFunctionParams[pi].strip()
-
-	return Functions
+    Functions_dict = []
+    for f in Functions:
+        fd = {"Name": f.name, "Description": f.desc, "Imports": f.imports, "Parameters": f.params, "Code": f.getCode().split('\n')}
+        Functions_dict.append(fd)
+    return Functions_dict
 
 
 
 # Driver Code
-Functions = ExtractFunctionsFromFile('GigaCode.py', language='Python', tabSpace=4)
-# import pickle
-# Functions = pickle.load(open('FunctionDatabases/PythonTestDB.p', 'rb'))
-for f in Functions:
-	print('\n\n')
-	print("Name:", f['Name'])
-	print("Desc:", f['Description'])
-	print("Parameters:", f['Parameters'])
-	for fl in f['Code']:
-		print(fl)
+# Functions = ExtractPythonFunctions(file_path='Code/Python/Test.py', formatJSONPath='Format_Python_Standard.json', tabSpace=4)
+# # import pickle
+# # Functions = pickle.load(open('FunctionDatabases/PythonTestDB.p', 'rb'))
+# for f in Functions:
+#     print('\n\n')
+#     print("Name:", f.name)
+#     print("Desc:", f.desc)
+#     print("Imports:", f.imports)
+#     print("Parameters:", f.params)
+#     print("CodeLines:", f.code)
+#     print("Code:\n", f.getCode())

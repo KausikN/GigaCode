@@ -48,7 +48,7 @@ def CreateWindow():
     curRow += 1
     FunctionDetailsText = tk.StringVar()
     FunctionDetailsText.set("")
-    FunctionDetailsLabel = Label(root, textvariable=FunctionDetailsText)
+    FunctionDetailsLabel = Label(root, textvariable=FunctionDetailsText, anchor='nw')
     FunctionDetailsLabel.grid(row=curRow, column=1)
     curRow += 1
 
@@ -95,8 +95,9 @@ def SearchFunctions():
             for f in FunctionHashMap[RequiredFunctionName]:
                 FunctionsDetails += str(fi) + ") " + "\n"
                 FunctionsDetails += "Name: " + f['Name'] + "\n"
-                FunctionsDetails += "Desc: " + f['Description'] + "\n"
-                FunctionsDetails += "Para: " + ', '.join(f['Parameters']) + "\n\n"
+                FunctionsDetails += "Desc:\n" + '\n'.join(f['Description']) + "\n"
+                FunctionsDetails += "Imports:\n" + '\n'.join(f['Imports']) + "\n"
+                FunctionsDetails += "Para: " + f['Parameters'] + "\n\n"
                 FunctionsDetails += '\n'.join(f['Code']) + "\n\n"
                 fi += 1
             FunctionDetailsText.set(FunctionsDetails)
@@ -110,8 +111,9 @@ def SearchFunctions():
                 for f in FunctionHashMap[key]:
                     FunctionsDetails += str(fi) + ") " + "\n"
                     FunctionsDetails += "Name: " + f['Name'] + "\n"
-                    FunctionsDetails += "Desc: " + f['Description'] + "\n"
-                    FunctionsDetails += "Para: " + ', '.join(f['Parameters']) + "\n\n"
+                    FunctionsDetails += "Desc:\n" + '\n'.join(f['Description']) + "\n"
+                    FunctionsDetails += "Imports:\n" + '\n'.join(f['Imports']) + "\n"
+                    FunctionsDetails += "Para: " + f['Parameters'] + "\n\n"
                     FunctionsDetails += '\n'.join(f['Code']) + "\n\n"
                     fi += 1
                 matches += 1
