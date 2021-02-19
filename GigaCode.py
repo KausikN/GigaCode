@@ -8,7 +8,7 @@ import json
 
 # Main Classes
 class Function:
-    def __init__(self, name, params, desc, imports, code):
+    def __init__(self, name, params, desc, imports, code, tabSpace=4):
         self.name = name
         self.params = params
         self.desc = desc
@@ -24,21 +24,21 @@ class Function:
 
         # Desc
         for dl in self.desc:
-            codeText = codeText + "    # " + dl
+            codeText = codeText + " "*tabSpace + "# " + dl
             codeText = codeText + "\n"
 
         codeText = codeText + "\n"
 
         # Imports
         for il in self.imports:
-            codeText = codeText + "    " + il
+            codeText = codeText + " "*tabSpace + il
             codeText = codeText + "\n"
 
         codeText = codeText + "\n"
 
         # Code
         for cl in self.code:
-            codeText = codeText + "    " + cl
+            codeText = codeText + " "*tabSpace + cl
             codeText = codeText + "\n"
 
         codeText.rstrip('\n')
@@ -85,7 +85,7 @@ def ExtractPythonFunctions(data=None, file_path='', formatJSONPath='Format_Pytho
             inDesc = False
             DescFound = False
             inImports = False
-            f = Function(curFunc['name'], curFunc['params'], curFunc['desc'], curFunc['imports'], curFunc['code'])
+            f = Function(curFunc['name'], curFunc['params'], curFunc['desc'], curFunc['imports'], curFunc['code'], tabSpace=tabSpace)
             Functions.append(f)
             curFunc = {"name": '', "params": '', "desc": [], "imports": [], "code": []}
             continue
