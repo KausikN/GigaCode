@@ -14,6 +14,7 @@ class Function:
         self.desc = desc
         self.imports = imports
         self.code = code
+        self.tabSpace = tabSpace
     
     def getCode(self):
         codeText = ''
@@ -24,21 +25,21 @@ class Function:
 
         # Desc
         for dl in self.desc:
-            codeText = codeText + " "*tabSpace + "# " + dl
+            codeText = codeText + " "*self.tabSpace + "# " + dl
             codeText = codeText + "\n"
 
         codeText = codeText + "\n"
 
         # Imports
         for il in self.imports:
-            codeText = codeText + " "*tabSpace + il
+            codeText = codeText + " "*self.tabSpace + il
             codeText = codeText + "\n"
 
         codeText = codeText + "\n"
 
         # Code
         for cl in self.code:
-            codeText = codeText + " "*tabSpace + cl
+            codeText = codeText + " "*self.tabSpace + cl
             codeText = codeText + "\n"
 
         codeText.rstrip('\n')
@@ -131,6 +132,15 @@ def ExtractPythonFunctions(data=None, file_path='', formatJSONPath='Format_Pytho
                     if line.startswith(' '*tabSpace):
                         linedata = line[tabSpace:]
                     curFunc['code'].append(linedata)
+                
+    # for f in Functions:
+    #     print('\n\n')
+    #     print("Name:", f.name)
+    #     print("Desc:", f.desc)
+    #     print("Imports:", f.imports)
+    #     print("Parameters:", f.params)
+    #     print("CodeLines:", f.code)
+    #     print("Code:\n", f.getCode())
 
     Functions_dict = []
     for f in Functions:
@@ -141,14 +151,6 @@ def ExtractPythonFunctions(data=None, file_path='', formatJSONPath='Format_Pytho
 
 
 # Driver Code
-# Functions = ExtractPythonFunctions(file_path='Code/Python/Test.py', formatJSONPath='Format_Python_Standard.json', tabSpace=4)
-# # import pickle
-# # Functions = pickle.load(open('FunctionDatabases/PythonTestDB.p', 'rb'))
-# for f in Functions:
-#     print('\n\n')
-#     print("Name:", f.name)
-#     print("Desc:", f.desc)
-#     print("Imports:", f.imports)
-#     print("Parameters:", f.params)
-#     print("CodeLines:", f.code)
-#     print("Code:\n", f.getCode())
+Functions = ExtractPythonFunctions(file_path='Code/Python/ImageProcessing.py', formatJSONPath='Formats/Format_Python_Standard.json', tabSpace=4)
+# import pickle
+# Functions = pickle.load(open('FunctionDatabases/PythonTestDB.p', 'rb'))

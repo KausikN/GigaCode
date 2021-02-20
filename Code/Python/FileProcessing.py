@@ -4,15 +4,29 @@ Library of File Processing Functions made by ME
 '''
 
 # Imports
-import os
 
 # Util Functions
+#FS
 def GetBytesFromFile(filepath):
+    #DS
+    # Get bytes data from a file
+    #DE
+    #IS
+    #IE
+
     return bytearray(open(filepath, 'rb').read())
+#FE
 
 # Compression Algos
 # Runner Length
+#FS
 def RunnerLength_Compress(filepath=None, data=None, groupLength=1, countFormat='dec'):
+    #DS
+    # Runner Length Encoder - Encode/Compress file or data using variable length runner encoding
+    #DE
+    #IS
+    #IE
+
     compressed_bytes = str(groupLength) + '_' # Header is groupLength followed by '_' to indicate end of value
     if not filepath == None:
         data_bytes = GetBytesFromFile(filepath)
@@ -51,8 +65,16 @@ def RunnerLength_Compress(filepath=None, data=None, groupLength=1, countFormat='
 
 
     return bytearray(compressed_bytes, encoding='utf8')
+#FE
 
+#FS
 def RunnerLength_Decompress(filepath=None, data=None, countFormat='dec'):
+    #DS
+    # Runner Length Decoder - Decode file or data using variable length runner algorithm
+    #DE
+    #IS
+    #IE
+
     decompressed_bytes = ''
     if not filepath == None:
         data_bytes = GetBytesFromFile(filepath).decode('utf8')
@@ -81,3 +103,4 @@ def RunnerLength_Decompress(filepath=None, data=None, countFormat='dec'):
         
 
     return bytearray(decompressed_bytes, encoding='utf8')
+#FE
