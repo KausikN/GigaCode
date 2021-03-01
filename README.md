@@ -13,15 +13,15 @@
 
 # Function Database
 
-   - Store parsed function data in pickle files as database of functions for later use
+   - Store parsed function data in pickle/json files as database of functions for later use
 
-   - Run app_Database.py for storing new functions in a database pickle file
+   - Run app_Database.py for storing new functions in a database pickle/json file
 
    ![Database App](DocImages/DatabaseApp_1.PNG)
 
 # Search Functions
 
-   - Search for functions by input query from database pickle files
+   - Search for functions by input query from database pickle/json files
 
    - Run app.py for searching functions
 
