@@ -1,0 +1,2701 @@
+{
+    "Functions": [
+        {
+            "Code": [
+                "def convert_frames_to_video(pathIn, pathOut, fps=25.0, image_prefix=\"\"):",
+                "    # Converts list of frames into a video",
+                "",
+                "    import os",
+                "    import cv2",
+                "",
+                "    frame_array = []",
+                "    files = [f for f in os.listdir(pathIn) if os.path.isfile(join(pathIn, f))]",
+                "    print(files)",
+                "    for i in range(len(files)):",
+                "        filename = pathIn + files[i]",
+                "        # Read each image file",
+                "        img = cv2.imread(filename)",
+                "        height, width, layers = img.shape",
+                "        size = (width, height)",
+                "        print(filename)",
+                "        # Inserting the frames into an image array",
+                "        frame_array.append(img)",
+                "    out = cv2.VideoWriter(pathOut, cv2.VideoWriter_fourcc(*'DIVX'), fps, size)",
+                "    for i in range(len(frame_array)):",
+                "        # Writing to a image array",
+                "        out.write(frame_array[i])",
+                "    out.release()",
+                ""
+            ],
+            "Description": [
+                "Converts list of frames into a video"
+            ],
+            "Imports": [
+                "import os",
+                "import cv2"
+            ],
+            "Name": "convert_frames_to_video",
+            "Parameters": "pathIn, pathOut, fps=25.0, image_prefix=\"\""
+        },
+        {
+            "Code": [
+                "def DisplayVideo(videoPath=0, quitChar='X'):",
+                "    # Display video stream in a window",
+                "",
+                "    import cv2",
+                "",
+                "    cap = cv2.VideoCapture(videoPath)",
+                "    while(True):",
+                "        # Capture frame-by-frame",
+                "        ret, frame = cap.read()",
+                "        # Our operations on the frame come here",
+                "        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)",
+                "        # Display the resulting frame",
+                "        cv2.imshow('frame',gray)",
+                "        if cv2.waitKey(1) & 0xFF == ord(quitChar):",
+                "            break",
+                "    # When everything done, release the capture",
+                "    cap.release()",
+                "    cv2.destroyAllWindows()",
+                ""
+            ],
+            "Description": [
+                "Display video stream in a window"
+            ],
+            "Imports": [
+                "import cv2"
+            ],
+            "Name": "DisplayVideo",
+            "Parameters": "videoPath=0, quitChar='X'"
+        },
+        {
+            "Code": [
+                "def GetWebcamVideo(Filter=None, quitChar='q'):",
+                "    # Get Webcam Video Stream",
+                "",
+                "    import cv2",
+                "",
+                "    return cv2.VideoCapture(0)",
+                ""
+            ],
+            "Description": [
+                "Get Webcam Video Stream"
+            ],
+            "Imports": [
+                "import cv2"
+            ],
+            "Name": "GetWebcamVideo",
+            "Parameters": "Filter=None, quitChar='q'"
+        },
+        {
+            "Code": [
+                "def speedx(snd_array, factor):",
+                "    # Speeds up / slows down a sound, by some factor",
+                "",
+                "    import numpy as np",
+                "",
+                "    indices = np.round(np.arange(0, len(snd_array), factor))",
+                "    indices = indices[indices < len(snd_array)].astype(int)",
+                "    return snd_array[indices]",
+                ""
+            ],
+            "Description": [
+                "Speeds up / slows down a sound, by some factor"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "speedx",
+            "Parameters": "snd_array, factor"
+        },
+        {
+            "Code": [
+                "def stretch(snd_array, factor, window_size, h):",
+                "    # Stretches/shortens a sound, by some factor",
+                "",
+                "    import numpy as np",
+                "",
+                "    phase = np.zeros(window_size)",
+                "    hanning_window = np.hanning(window_size)",
+                "    result = np.zeros(int(len(snd_array) / factor + window_size))",
+                "    for i in np.arange(0, len(snd_array) - (window_size + h), h*factor):",
+                "        i = int(i)",
+                "        # Two potentially overlapping subarrays",
+                "        a1 = snd_array[i: i + window_size]",
+                "        a2 = snd_array[i + h: i + window_size + h]",
+                "        # The spectra of these arrays",
+                "        s1 = np.fft.fft(hanning_window * a1)",
+                "        s2 = np.fft.fft(hanning_window * a2)",
+                "        # Rephase all frequencies",
+                "        phase = (phase + np.angle(s2/s1)) % 2*np.pi",
+                "        a2_rephased = np.fft.ifft(np.abs(s2)*np.exp(1j*phase))",
+                "        i2 = int(i/factor)",
+                "        result[i2: i2 + window_size] += hanning_window*a2_rephased.real",
+                "    # normalize (16bit)",
+                "    result = ((2**(16-4)) * result/result.max())",
+                "    return result.astype('int16')",
+                ""
+            ],
+            "Description": [
+                "Stretches/shortens a sound, by some factor"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "stretch",
+            "Parameters": "snd_array, factor, window_size, h"
+        },
+        {
+            "Code": [
+                "def pitchshift(snd_array, n, window_size=2**13, h=2**11):",
+                "    # Changes the pitch of a sound by ``n`` semitones",
+                "",
+                "",
+                "    factor = 2**(1.0 * n / 12.0)",
+                "    stretched = stretch(snd_array, 1.0/factor, window_size, h)",
+                "    return speedx(stretched[window_size:], factor)",
+                ""
+            ],
+            "Description": [
+                "Changes the pitch of a sound by ``n`` semitones"
+            ],
+            "Imports": [],
+            "Name": "pitchshift",
+            "Parameters": "snd_array, n, window_size=2**13, h=2**11"
+        },
+        {
+            "Code": [
+                "def GenerateKeySoundDict(sound_file_path, KeyConfig_file_path, TransposedSounds_file_path, SaveSounds=True):",
+                "    # Generate Dictionary of key sounds",
+                "",
+                "    import wavfile",
+                "    import pickle",
+                "",
+                "    # Get Reference Audio File",
+                "    fps, sound = wavfile.read(sound_file_path)",
+                "    # Create Key Sounds from reference file",
+                "    tones = range(-25, 25)",
+                "    print('Started Creating Key Sounds')",
+                "    transposed_sounds = []",
+                "    for tone in tqdm(tones):",
+                "        transposed_sounds.append(pitchshift(sound, tone))",
+                "    print('Finished Creating Key Sounds')",
+                "    if SaveSounds:",
+                "        pickle.dump(transposed_sounds, open(TransposedSounds_file_path, 'wb'))",
+                "    # Init Key Configs",
+                "    keys = open(KeyConfig_file_path, 'r+').read().split('\\n')",
+                "    sounds = map(pygame.sndarray.make_sound, transposed_sounds)",
+                "    return keys, sounds, fps",
+                ""
+            ],
+            "Description": [
+                "Generate Dictionary of key sounds"
+            ],
+            "Imports": [
+                "import wavfile",
+                "import pickle"
+            ],
+            "Name": "GenerateKeySoundDict",
+            "Parameters": "sound_file_path, KeyConfig_file_path, TransposedSounds_file_path, SaveSounds=True"
+        },
+        {
+            "Code": [
+                "def LoadKeySounds(TransposedSounds_file_path, KeyConfig_file_path):",
+                "    # Load Key sounds from file",
+                "",
+                "    import pygame",
+                "    import wavfile",
+                "    import pickle",
+                "",
+                "    # Init Key Configs",
+                "    keys = open(KeyConfig_file_path, 'r+').read().split('\\n')",
+                "    sounds = map(pygame.sndarray.make_sound, pickle.load(open(TransposedSounds_file_path, 'rb')))",
+                "    return keys, sounds",
+                ""
+            ],
+            "Description": [
+                "Load Key sounds from file"
+            ],
+            "Imports": [
+                "import pygame",
+                "import wavfile",
+                "import pickle"
+            ],
+            "Name": "LoadKeySounds",
+            "Parameters": "TransposedSounds_file_path, KeyConfig_file_path"
+        },
+        {
+            "Code": [
+                "def ParsePianoSequenceFile(filepath):",
+                "    # Parse Piano Sequence File to get playable sequence of sounds",
+                "",
+                "",
+                "    MainSeq = []",
+                "    SubSeqs = {}",
+                "    beepfile = open(filepath, 'r')",
+                "    CurSubSeqName = None",
+                "    for line in beepfile.readlines():",
+                "        line = line.strip()",
+                "        if line.startswith('//'):",
+                "            continue",
+                "        elif '{' in line:",
+                "            CurSubSeqName = line[:(line.index('{'))].strip()",
+                "            SubSeqs[CurSubSeqName] = []",
+                "        elif '}' in line:",
+                "            CurSubSeqName = None",
+                "        elif '.' in line:",
+                "            if CurSubSeqName == None:",
+                "                MainSeq.append(['S', line[(line.index('.')+1):].strip(), ''])",
+                "            else:",
+                "                SubSeqs[CurSubSeqName].append(['S', line[(line.index('.')+1):].strip(), ''])",
+                "        elif '-' in line:",
+                "            if CurSubSeqName == None:",
+                "                MainSeq.append(['D', line[(line.index('-')+1):].strip(), ''])",
+                "            else:",
+                "                SubSeqs[CurSubSeqName].append(['D', line[(line.index('-')+1):].strip(), ''])",
+                "        else:",
+                "            splitline = line.split(' ')",
+                "            freq = splitline[0].strip()",
+                "            dur = splitline[1].strip()",
+                "            asynccheck = str(False)",
+                "            if len(splitline) > 2:",
+                "                asynccheck = str(splitline[2].strip() == 'a')",
+                "            if CurSubSeqName == None:",
+                "                MainSeq.append(['M', freq, dur, asynccheck])",
+                "            else:",
+                "                SubSeqs[CurSubSeqName].append(['M', freq, dur, asynccheck])",
+                "    return MainSeq, SubSeqs",
+                ""
+            ],
+            "Description": [
+                "Parse Piano Sequence File to get playable sequence of sounds"
+            ],
+            "Imports": [],
+            "Name": "ParsePianoSequenceFile",
+            "Parameters": "filepath"
+        },
+        {
+            "Code": [
+                "def GetFullMainSeq(MainSeq, SubSeqs):",
+                "    # Get full sequence of sounds to play from sequence with repeated subsequences",
+                "",
+                "",
+                "    SubSeqsFull = {}",
+                "    FullMainSeq = []",
+                "    for s in MainSeq:",
+                "        if s[0] == 'M':",
+                "            FullMainSeq.append([s[1], s[2], s[3]])",
+                "        elif s[0] == 'S':",
+                "            if s[1] not in SubSeqsFull.keys():",
+                "                SubSeqsFull[s[1]] = []",
+                "                SubSeqsFull[s[1]] = GetFullMainSeq(SubSeqs[s[1]], SubSeqs)",
+                "            FullMainSeq.extend(SubSeqsFull[s[1]])",
+                "        elif s[0] == 'D':",
+                "            FullMainSeq.append([s[1], s[2], s[3]])",
+                "    return FullMainSeq",
+                ""
+            ],
+            "Description": [
+                "Get full sequence of sounds to play from sequence with repeated subsequences"
+            ],
+            "Imports": [],
+            "Name": "GetFullMainSeq",
+            "Parameters": "MainSeq, SubSeqs"
+        },
+        {
+            "Code": [
+                "def PlayPianoSequence(Seq, KeySoundDict, fade_ms=50):",
+                "    # Play Piano Sequence in a window once",
+                "",
+                "    import time",
+                "    import wavfile",
+                "    import pygame",
+                "",
+                "    print(\"Started Audio Sequence\")",
+                "    for s in Seq:",
+                "        if s[1] != '':",
+                "            print(\"Playing key\", s[0], \" for\", s[1], \"ms async:\", s[2])",
+                "            if s[2] == 'False':",
+                "                KeySoundDict[s[0]].play(fade_ms=fade_ms)",
+                "                time.sleep(float(s[1])/1000)",
+                "            else:",
+                "                KeySoundDict[s[0]].play(fade_ms=fade_ms)",
+                "        else:",
+                "            print(\"Delaying for\", float(s[0]), \"ms\")",
+                "            time.sleep(float(s[0])/1000)",
+                "        for event in pygame.event.get():",
+                "            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):",
+                "                pygame.quit()",
+                "                quit()",
+                "    print(\"Ended Audio Sequence\")",
+                ""
+            ],
+            "Description": [
+                "Play Piano Sequence in a window once"
+            ],
+            "Imports": [
+                "import time",
+                "import wavfile",
+                "import pygame"
+            ],
+            "Name": "PlayPianoSequence",
+            "Parameters": "Seq, KeySoundDict, fade_ms=50"
+        },
+        {
+            "Code": [
+                "def LoopPianoSequence(Seq, KeySoundDict):",
+                "    # Play Piano Sequence in a window looped infinitely",
+                "",
+                "",
+                "    while True:",
+                "        PlayPianoSequence(Seq, KeySoundDict)",
+                ""
+            ],
+            "Description": [
+                "Play Piano Sequence in a window looped infinitely"
+            ],
+            "Imports": [],
+            "Name": "LoopPianoSequence",
+            "Parameters": "Seq, KeySoundDict"
+        },
+        {
+            "Code": [
+                "def CreatePianoSounds(RefSound_file_path, KeyConfig_file_path, TransposedSounds_file_path='', SaveSounds=False):",
+                "    # Create new piano sounds dictionary from Reference sound",
+                "",
+                "    import wavfile",
+                "    import pygame",
+                "    import pickle",
+                "",
+                "    # Get Reference Audio File",
+                "    fps, sound = wavfile.read(RefSound_file_path)",
+                "    # Create Key Sounds from reference file",
+                "    tones = range(-25, 25)",
+                "    print('Started Creating Key Sounds')",
+                "    transposed_sounds = []",
+                "    for tone in tqdm(tones):",
+                "        transposed_sounds.append(pitchshift(sound, tone))",
+                "    print('Finished Creating Key Sounds')",
+                "    # Save Sounds",
+                "    if SaveSounds:",
+                "        pickle.dump(transposed_sounds, open(TransposedSounds_file_path, 'wb'))",
+                "    # Init Pygame",
+                "    pygame.mixer.init(fps, -16, 1, 2048)",
+                "    screen = pygame.display.set_mode((150, 150))",
+                "    # Init Key Configs",
+                "    keys = open(KeyConfig_file_path, 'r+').read().split('\\n')",
+                "    sounds = map(pygame.sndarray.make_sound, transposed_sounds)",
+                "    keysound_dict = dict(zip(keys, sounds))",
+                "    return keysound_dict",
+                ""
+            ],
+            "Description": [
+                "Create new piano sounds dictionary from Reference sound"
+            ],
+            "Imports": [
+                "import wavfile",
+                "import pygame",
+                "import pickle"
+            ],
+            "Name": "CreatePianoSounds",
+            "Parameters": "RefSound_file_path, KeyConfig_file_path, TransposedSounds_file_path='', SaveSounds=False"
+        },
+        {
+            "Code": [
+                "def CreateWAVFile(filepath, nchannels, sampwidth, framerate, nframes, comptype, compname):",
+                "    # Create new WAV File from sound",
+                "",
+                "    import wavfile",
+                "",
+                "    #open(filepath, 'w+')",
+                "    fw = OpenWAV(filepath, 'w')",
+                "    # (nchannels, sampwidth, framerate, nframes, comptype, compname)",
+                "    params = (nchannels, sampwidth, framerate, nframes, comptype, compname)",
+                "    fw.setparams(params)",
+                ""
+            ],
+            "Description": [
+                "Create new WAV File from sound"
+            ],
+            "Imports": [
+                "import wavfile"
+            ],
+            "Name": "CreateWAVFile",
+            "Parameters": "filepath, nchannels, sampwidth, framerate, nframes, comptype, compname"
+        },
+        {
+            "Code": [
+                "def OpenWAV(filepath, mode):",
+                "    # Open WAV File from path for writing or reading",
+                "",
+                "    import os",
+                "",
+                "    if not os.path.exists(filepath):",
+                "        open(filepath, 'w+')",
+                "    if mode in ['r', 'rb', 'Read', 'read']:",
+                "        return w.open(filepath, 'rb')",
+                "    if mode in ['w', 'wb', 'Write', 'write']:",
+                "        return w.open(filepath, 'wb')",
+                ""
+            ],
+            "Description": [
+                "Open WAV File from path for writing or reading"
+            ],
+            "Imports": [
+                "import os"
+            ],
+            "Name": "OpenWAV",
+            "Parameters": "filepath, mode"
+        },
+        {
+            "Code": [
+                "def WriteBytesToWAV(filepath, data, datasize, nchannels=2, sampwidth=3, framerate=48000, comptype='NONE', compname='not compressed'):",
+                "    # Write Bytes to WAV File",
+                "",
+                "    import os",
+                "    import wavfile",
+                "",
+                "    if not os.path.exists(filepath):",
+                "        CreateWAVFile(filepath, nchannels, sampwidth, framerate, datasize, comptype, compname)",
+                "        fw = OpenWAV(filepath, 'w')",
+                "        for sample in data:",
+                "            fw.writeframes(struct.pack('h', int( sample * 32767.0 )))",
+                "        #fw.writeframes(data)",
+                "        fw.close()",
+                "    else:",
+                "        fr = OpenWAV(filepath, 'r')",
+                "        fw = OpenWAV(filepath, 'w')",
+                "        fw.setnframes(fr.getnframes() + datasize)",
+                "        fw.writeframes(data)",
+                "        fr.close()",
+                "        fw.close()",
+                ""
+            ],
+            "Description": [
+                "Write Bytes to WAV File"
+            ],
+            "Imports": [
+                "import os",
+                "import wavfile"
+            ],
+            "Name": "WriteBytesToWAV",
+            "Parameters": "filepath, data, datasize, nchannels=2, sampwidth=3, framerate=48000, comptype='NONE', compname='not compressed'"
+        },
+        {
+            "Code": [
+                "def save_wav(file_name, audio):",
+                "    # Save audio as WAV file",
+                "",
+                "    import os",
+                "    import wavfile",
+                "    import wave as w",
+                "",
+                "    # Open up a wav file",
+                "    wav_file = w.open(file_name,\"w\")",
+                "    # wav params",
+                "    nchannels = 1",
+                "    sampwidth = 2",
+                "    # 44100 is the industry standard sample rate - CD quality.  If you need to",
+                "    # save on file size you can adjust it downwards. The stanard for low quality",
+                "    # is 8000 or 8kHz.",
+                "    nframes = len(audio)",
+                "    comptype = \"NONE\"",
+                "    compname = \"not compressed\"",
+                "    sample_rate = 48000",
+                "    wav_file.setparams((nchannels, sampwidth, sample_rate, nframes, comptype, compname))",
+                "    # WAV files here are using short, 16 bit, signed integers for the ",
+                "    # sample size.  So we multiply the floating point data we have by 32767, the",
+                "    # maximum value for a short integer.  NOTE: It is theortically possible to",
+                "    # use the floating point -1.0 to 1.0 data directly in a WAV file but not",
+                "    # obvious how to do that using the wave module in python.",
+                "    for sample in audio:",
+                "        print(\"Sample:\", type(sample), sample)",
+                "        wav_file.writeframes(sample)",
+                "    wav_file.close()",
+                ""
+            ],
+            "Description": [
+                "Save audio as WAV file"
+            ],
+            "Imports": [
+                "import os",
+                "import wavfile",
+                "import wave as w"
+            ],
+            "Name": "save_wav",
+            "Parameters": "file_name, audio"
+        },
+        {
+            "Code": [
+                "def GenerateFreq(freq, duration):",
+                "    # Generate and play a particular frequency for some duration using beep",
+                "",
+                "    import winsound",
+                "",
+                "    winsound.Beep(freq, duration)",
+                ""
+            ],
+            "Description": [
+                "Generate and play a particular frequency for some duration using beep"
+            ],
+            "Imports": [
+                "import winsound"
+            ],
+            "Name": "GenerateFreq",
+            "Parameters": "freq, duration"
+        },
+        {
+            "Code": [
+                "def PlaySound(sound):",
+                "    # Play sound using winsound library",
+                "",
+                "    import winsound",
+                "",
+                "    winsound.PlaySound(sound)",
+                ""
+            ],
+            "Description": [
+                "Play sound using winsound library"
+            ],
+            "Imports": [
+                "import winsound"
+            ],
+            "Name": "PlaySound",
+            "Parameters": "sound"
+        },
+        {
+            "Code": [
+                "def ParseBeepSequenceFile(filepath):",
+                "    # Parse Beep Sequence file to get playable sequence of sounds",
+                "",
+                "",
+                "    MainSeq = []",
+                "    SubSeqs = {}",
+                "    beepfile = open(filepath, 'r')",
+                "    CurSubSeqName = None",
+                "    for line in beepfile.readlines():",
+                "        line = line.strip()",
+                "        if line.startswith('//'):",
+                "            continue",
+                "        elif '{' in line:",
+                "            CurSubSeqName = line[:(line.index('{'))].strip()",
+                "            SubSeqs[CurSubSeqName] = []",
+                "        elif '}' in line:",
+                "            CurSubSeqName = None",
+                "        elif '.' in line:",
+                "            if CurSubSeqName == None:",
+                "                MainSeq.append(['S', line[(line.index('.')+1):].strip(), ''])",
+                "            else:",
+                "                SubSeqs[CurSubSeqName].append(['S', line[(line.index('.')+1):].strip(), ''])",
+                "        elif '-' in line:",
+                "            if CurSubSeqName == None:",
+                "                MainSeq.append(['D', line[(line.index('-')+1):].strip(), ''])",
+                "            else:",
+                "                SubSeqs[CurSubSeqName].append(['D', line[(line.index('-')+1):].strip(), ''])",
+                "        else:",
+                "            freq = line.split(' ')[0].strip()",
+                "            dur = line.split(' ')[1].strip()",
+                "            if CurSubSeqName == None:",
+                "                MainSeq.append(['M', freq, dur])",
+                "            else:",
+                "                SubSeqs[CurSubSeqName].append(['M', freq, dur])",
+                "    return MainSeq, SubSeqs",
+                ""
+            ],
+            "Description": [
+                "Parse Beep Sequence file to get playable sequence of sounds"
+            ],
+            "Imports": [],
+            "Name": "ParseBeepSequenceFile",
+            "Parameters": "filepath"
+        },
+        {
+            "Code": [
+                "def PlayBeepSequence(Seq):",
+                "    # Play Beep Sequence once",
+                "",
+                "    import winsound",
+                "    import time",
+                "",
+                "    print(\"Started Audio Sequence\")",
+                "    for s in Seq:",
+                "        if s[1] != '':",
+                "            print(\"Playing\", s[0], \"Hz for\", s[1], \"ms\")",
+                "            winsound.Beep(int(s[0]), int(s[1]))",
+                "            #GenerateFreq(int(s[0]), int(s[1]))",
+                "        else:",
+                "            print(\"Delaying for\", float(s[0]), \"ms\")",
+                "            time.sleep(float(s[0])/1000)",
+                "    print(\"Ended Audio Sequence\")",
+                ""
+            ],
+            "Description": [
+                "Play Beep Sequence once"
+            ],
+            "Imports": [
+                "import winsound",
+                "import time"
+            ],
+            "Name": "PlayBeepSequence",
+            "Parameters": "Seq"
+        },
+        {
+            "Code": [
+                "def LoopBeepSequence(Seq):",
+                "    # Play Beep Sequence looped infinitely",
+                "",
+                "    import winsound",
+                "    import time",
+                "",
+                "    while True:",
+                "        PlayBeepSequence(Seq)",
+                ""
+            ],
+            "Description": [
+                "Play Beep Sequence looped infinitely"
+            ],
+            "Imports": [
+                "import winsound",
+                "import time"
+            ],
+            "Name": "LoopBeepSequence",
+            "Parameters": "Seq"
+        },
+        {
+            "Code": [
+                "def PianoKeyFreqMap():",
+                "    # Mapper for piano keys to frequencies",
+                "",
+                "",
+                "    KeysFreq = {}",
+                "    Keys = ['C6', 'C6#', 'D6', 'D6#', 'E6', 'F6', 'F6#', 'G6', 'G6#', 'A6', 'A6#', 'B6', ",
+                "    'C7', 'C7#', 'D7', 'D7#', 'E7', 'F7', 'F7#', 'G7', 'G7#', 'A7', 'A7#', 'B7', 'C8']",
+                "    KeyNos = range(64, 88 + 1, 1)",
+                "    for key, keyno in zip(Keys, KeyNos):",
+                "        KeysFreq[key] = [GetKeyFreq(keyno)]",
+                "    return Keys, KeysFreq",
+                ""
+            ],
+            "Description": [
+                "Mapper for piano keys to frequencies"
+            ],
+            "Imports": [],
+            "Name": "PianoKeyFreqMap",
+            "Parameters": ""
+        },
+        {
+            "Code": [
+                "def GetKeyFreq(KeyNo):",
+                "    # Get standard frequency associated with a key",
+                "",
+                "",
+                "    return 2 ** ((KeyNo - 49) / 12) * 440",
+                ""
+            ],
+            "Description": [
+                "Get standard frequency associated with a key"
+            ],
+            "Imports": [],
+            "Name": "GetKeyFreq",
+            "Parameters": "KeyNo"
+        },
+        {
+            "Code": [
+                "def PlayPianoSounds():",
+                "    # Plays all piano sounds once",
+                "",
+                "",
+                "    duration = 1000",
+                "    Keys, KeyFreqs = PianoKeyFreqMap()",
+                "    for key in Keys:",
+                "        for freq in KeyFreqs[key]:",
+                "            print(key, freq)",
+                "            if freq >= 37 and freq <= 32767:",
+                "                GenerateFreq(int(round(freq)), duration)",
+                ""
+            ],
+            "Description": [
+                "Plays all piano sounds once"
+            ],
+            "Imports": [],
+            "Name": "PlayPianoSounds",
+            "Parameters": ""
+        },
+        {
+            "Code": [
+                "def ReadCSVFile(filepath):",
+                "    # Read CSV File as pandas dataframe",
+                "",
+                "    import pandas as pd",
+                "",
+                "    return pd.read_csv(filepath)",
+                ""
+            ],
+            "Description": [
+                "Read CSV File as pandas dataframe"
+            ],
+            "Imports": [
+                "import pandas as pd"
+            ],
+            "Name": "ReadCSVFile",
+            "Parameters": "filepath"
+        },
+        {
+            "Code": [
+                "def GenerateRandomData(n_data, range):",
+                "    # Generate n random integers from specified range",
+                "",
+                "    import random",
+                "",
+                "    X = []",
+                "    Y = []",
+                "    for i in range(n_data):",
+                "        x = random.randint(range[0], range[1])",
+                "        y = (2 * x) + 3",
+                "        X.append(x)",
+                "        Y.append(y)",
+                "    return X, Y",
+                ""
+            ],
+            "Description": [
+                "Generate n random integers from specified range"
+            ],
+            "Imports": [
+                "import random"
+            ],
+            "Name": "GenerateRandomData",
+            "Parameters": "n_data, range"
+        },
+        {
+            "Code": [
+                "def GenerateStandardNormalDist(n, mean=0.0, SD=1.0):",
+                "    # Generate n values from Standard Normal Distribution",
+                "",
+                "    import numpy as np",
+                "",
+                "    return np.random.normal(mean, SD, (n))",
+                ""
+            ],
+            "Description": [
+                "Generate n values from Standard Normal Distribution"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "GenerateStandardNormalDist",
+            "Parameters": "n, mean=0.0, SD=1.0"
+        },
+        {
+            "Code": [
+                "def GenerateLogNormalDist(n, mean=0.0, SD=1.0):",
+                "    # Generate n values from Log Normal Distribution",
+                "",
+                "    import numpy as np",
+                "",
+                "    return np.random.lognormal(mean, SD, (n))",
+                ""
+            ],
+            "Description": [
+                "Generate n values from Log Normal Distribution"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "GenerateLogNormalDist",
+            "Parameters": "n, mean=0.0, SD=1.0"
+        },
+        {
+            "Code": [
+                "def Mean(values):",
+                "    # Calculate mean of values",
+                "",
+                "",
+                "    sum = 0",
+                "    for v in values:",
+                "        sum += v",
+                "    return sum / len(values)",
+                ""
+            ],
+            "Description": [
+                "Calculate mean of values"
+            ],
+            "Imports": [],
+            "Name": "Mean",
+            "Parameters": "values"
+        },
+        {
+            "Code": [
+                "def Median(values):",
+                "    # Calculate median of values",
+                "",
+                "",
+                "    values.sort()",
+                "    if len(values) % 2 == 1:",
+                "        return values[int((len(values) - 1)/2)]",
+                "    else:",
+                "        return (values[int(len(values)/2)] + values[int(len(values)/2 - 1)]) / 2",
+                ""
+            ],
+            "Description": [
+                "Calculate median of values"
+            ],
+            "Imports": [],
+            "Name": "Median",
+            "Parameters": "values"
+        },
+        {
+            "Code": [
+                "def Mode(X):",
+                "    # Calculate mode of values",
+                "",
+                "",
+                "    modex = -1",
+                "    modex_freq = -1",
+                "    freq = FreqDist(X)",
+                "    for key in freq.keys():",
+                "        if freq[key] > modex_freq:",
+                "            modex = key",
+                "            modex_freq = freq[key]",
+                "    return modex",
+                ""
+            ],
+            "Description": [
+                "Calculate mode of values"
+            ],
+            "Imports": [],
+            "Name": "Mode",
+            "Parameters": "X"
+        },
+        {
+            "Code": [
+                "def BubbleSort(arr):",
+                "    # Bubblesort for sorting an array",
+                "",
+                "",
+                "    n = len(arr)",
+                "    for i in range(n):",
+                "        for j in range(0, n-i-1):",
+                "            if arr[j] > arr[j+1] :",
+                "                arr[j], arr[j+1] = arr[j+1], arr[j]",
+                ""
+            ],
+            "Description": [
+                "Bubblesort for sorting an array"
+            ],
+            "Imports": [],
+            "Name": "BubbleSort",
+            "Parameters": "arr"
+        },
+        {
+            "Code": [
+                "def StandardDeviation(X):",
+                "    # Calculate Standard Deviation of values",
+                "",
+                "",
+                "    SD = 0.0",
+                "    mean = Mean(X)",
+                "    sumsqaurediff = 0.0",
+                "    for x in X:",
+                "        sumsqaurediff += (x - mean) ** 2",
+                "    SD = (sumsqaurediff / len(X)) ** (1/2)",
+                "    return SD",
+                ""
+            ],
+            "Description": [
+                "Calculate Standard Deviation of values"
+            ],
+            "Imports": [],
+            "Name": "StandardDeviation",
+            "Parameters": "X"
+        },
+        {
+            "Code": [
+                "def Skewness(X):",
+                "    # Calculate Skewness of values",
+                "",
+                "",
+                "    return (Mean(X) - Mode(X)) / StandardDeviation(X)",
+                ""
+            ],
+            "Description": [
+                "Calculate Skewness of values"
+            ],
+            "Imports": [],
+            "Name": "Skewness",
+            "Parameters": "X"
+        },
+        {
+            "Code": [
+                "def Sum(X):",
+                "    # Calculate Sum of values",
+                "",
+                "",
+                "    sum = 0",
+                "    for x in X:",
+                "        sum += x",
+                "    return sum",
+                ""
+            ],
+            "Description": [
+                "Calculate Sum of values"
+            ],
+            "Imports": [],
+            "Name": "Sum",
+            "Parameters": "X"
+        },
+        {
+            "Code": [
+                "def Max(X):",
+                "    # Calculate Max of values",
+                "",
+                "",
+                "    max = 0",
+                "    for x in X:",
+                "        if max < x:",
+                "            max = x",
+                "    return max",
+                ""
+            ],
+            "Description": [
+                "Calculate Max of values"
+            ],
+            "Imports": [],
+            "Name": "Max",
+            "Parameters": "X"
+        },
+        {
+            "Code": [
+                "def FreqDist(X):",
+                "    # Calculate Frequency Distribution of values",
+                "",
+                "",
+                "    freq = {}",
+                "    for x in X:",
+                "        freq[x] = 0",
+                "    for x in X:",
+                "        freq[x] += 1",
+                "    return freq",
+                ""
+            ],
+            "Description": [
+                "Calculate Frequency Distribution of values"
+            ],
+            "Imports": [],
+            "Name": "FreqDist",
+            "Parameters": "X"
+        },
+        {
+            "Code": [
+                "def FreqDist_ClassLimited(X, allowedClasses=[]):",
+                "    # Calculate Frequency Distribution of values for only specific classes or labels",
+                "",
+                "",
+                "    # Accepts only 1, 2, 3, other",
+                "    freq = {}",
+                "    for c in allowedClasses:",
+                "        freq[c] = 0",
+                "    freq['other'] = 0",
+                "    for x in X:",
+                "        if x in allowedClasses:",
+                "            freq[str(x)] += 1",
+                "        else:",
+                "            freq['other'] += 1",
+                "    return freq",
+                ""
+            ],
+            "Description": [
+                "Calculate Frequency Distribution of values for only specific classes or labels"
+            ],
+            "Imports": [],
+            "Name": "FreqDist_ClassLimited",
+            "Parameters": "X, allowedClasses=[]"
+        },
+        {
+            "Code": [
+                "def FreqDist_Bins(X, binsize):",
+                "    # Calculate Frequency Distribution of values with binning",
+                "",
+                "",
+                "    values = []",
+                "    Freq = {}",
+                "    minVal = int(min(X))",
+                "    maxVal = int(round(max(X)))",
+                "    print(\"Range:\", minVal, \"-\", maxVal)",
+                "    for i in range(minVal, maxVal+1, binsize):",
+                "        values.append(i)",
+                "        Freq[str(i)] = 0",
+                "    for x in X:",
+                "        key = int(int((round(x) - minVal)/binsize)*binsize + minVal)",
+                "        Freq[str(key)] += 1",
+                "    return Freq",
+                ""
+            ],
+            "Description": [
+                "Calculate Frequency Distribution of values with binning"
+            ],
+            "Imports": [],
+            "Name": "FreqDist_Bins",
+            "Parameters": "X, binsize"
+        },
+        {
+            "Code": [
+                "def Correlation(X, Y):",
+                "    # Calculate Correlation of 2 sets of values",
+                "",
+                "",
+                "    n = len(X)",
+                "    sig_xy = 0",
+                "    sig_x = 0",
+                "    sig_y = 0",
+                "    sig_x2 = 0",
+                "    sig_y2 = 0",
+                "    for x, y in zip(X, Y):",
+                "        sig_xy += x*y",
+                "        sig_x += x",
+                "        sig_y += y",
+                "        sig_x2 += x**2",
+                "        sig_y2 += y**2",
+                "    corr = ((n*sig_xy) - (sig_x*sig_y)) / (((n*sig_x2 - (sig_x**2)) * (n*sig_y2 - (sig_y**2)))**(1/2))",
+                "    return corr",
+                ""
+            ],
+            "Description": [
+                "Calculate Correlation of 2 sets of values"
+            ],
+            "Imports": [],
+            "Name": "Correlation",
+            "Parameters": "X, Y"
+        },
+        {
+            "Code": [
+                "def PrintNonZeroFreq(FreqDist, binsize):",
+                "    # Display non-zero frquency values in a frequency distribution",
+                "",
+                "",
+                "    print(\"Freq Dist \" + str(binsize) + \" Non Zero Values: \")",
+                "    nbins = 0",
+                "    for k in FreqDist.keys():",
+                "        if FreqDist[k] > 0:",
+                "            nbins += 1",
+                "            #print(k, \":\", FreqDist[k], \"\\n\")",
+                "    print(\"Found\", nbins, \"non empty bins\")",
+                ""
+            ],
+            "Description": [
+                "Display non-zero frquency values in a frequency distribution"
+            ],
+            "Imports": [],
+            "Name": "PrintNonZeroFreq",
+            "Parameters": "FreqDist, binsize"
+        },
+        {
+            "Code": [
+                "def MissingCount(Data, label):",
+                "    # Get count of missing values in a data label associated data",
+                "",
+                "",
+                "    missing = 0",
+                "    indices = []",
+                "    i = 0",
+                "    for d in Data[label]:",
+                "        if str(d).strip().replace('nan', '') in ['', ' '] or 'NaN' in str(d):",
+                "            missing += 1",
+                "            indices.append(i)",
+                "        i += 1",
+                "    return missing, indices",
+                ""
+            ],
+            "Description": [
+                "Get count of missing values in a data label associated data"
+            ],
+            "Imports": [],
+            "Name": "MissingCount",
+            "Parameters": "Data, label"
+        },
+        {
+            "Code": [
+                "def MinMaxNorm(X):",
+                "    # Calculate Min-Max Norm of values",
+                "",
+                "",
+                "    minVal = min(X)",
+                "    maxVal = max(X)",
+                "    X_Norm = []",
+                "    for x in X:",
+                "        X_Norm.append(round((x - minVal) / (maxVal - minVal), 2))",
+                "    return X_Norm",
+                ""
+            ],
+            "Description": [
+                "Calculate Min-Max Norm of values"
+            ],
+            "Imports": [],
+            "Name": "MinMaxNorm",
+            "Parameters": "X"
+        },
+        {
+            "Code": [
+                "def ZScoreNorm(X, mean, SD):",
+                "    # Calculate Z-Score Norm of values",
+                "",
+                "",
+                "    X_Norm = []",
+                "    for x in X:",
+                "        X_Norm.append(round(((x - mean) / SD), 2))",
+                "    return X_Norm",
+                ""
+            ],
+            "Description": [
+                "Calculate Z-Score Norm of values"
+            ],
+            "Imports": [],
+            "Name": "ZScoreNorm",
+            "Parameters": "X, mean, SD"
+        },
+        {
+            "Code": [
+                "def DecimalScaleNorm(X):",
+                "    # Calculate Decimal Scale Norm of values",
+                "",
+                "",
+                "    maxVal = max(X)",
+                "    divpow = len(str(maxVal))",
+                "    X_Norm = []",
+                "    for x in X:",
+                "        X_Norm.append(round((x / (10 ** divpow)), 2))",
+                "    return X_Norm",
+                ""
+            ],
+            "Description": [
+                "Calculate Decimal Scale Norm of values"
+            ],
+            "Imports": [],
+            "Name": "DecimalScaleNorm",
+            "Parameters": "X"
+        },
+        {
+            "Code": [
+                "def GenerateTallyStr(no):",
+                "    # Generate Tally marks string for a number",
+                "",
+                "",
+                "    five = '||||\\\\ '",
+                "    tally = five * int(no / 5) + '|' * (no % 5)",
+                "    return tally",
+                ""
+            ],
+            "Description": [
+                "Generate Tally marks string for a number"
+            ],
+            "Imports": [],
+            "Name": "GenerateTallyStr",
+            "Parameters": "no"
+        },
+        {
+            "Code": [
+                "def GeneratePieChart(data, labels):",
+                "    # Generate Pie Chart for data",
+                "",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'grey']",
+                "    plt.pie(data, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)",
+                "    plt.axis('equal')",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Pie Chart for data"
+            ],
+            "Imports": [
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "GeneratePieChart",
+            "Parameters": "data, labels"
+        },
+        {
+            "Code": [
+                "def GenerateBarGraph(data, labels):",
+                "    # Generate Bar Chart for data",
+                "",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    plt.bar(data, data, align='center', alpha=0.5)",
+                "    plt.xticks(data, labels)",
+                "    plt.xlabel('Grades')",
+                "    plt.ylabel('No of Students')",
+                "    plt.title('Class Performance')",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Bar Chart for data"
+            ],
+            "Imports": [
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "GenerateBarGraph",
+            "Parameters": "data, labels"
+        },
+        {
+            "Code": [
+                "def GenerateHistogram(Marks):",
+                "    # Generate Histogram for data",
+                "",
+                "    import numpy as np",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    n_bins = 10",
+                "    X = np.arange(len(Marks))",
+                "    n, bins, patches = plt.hist(Marks, n_bins, facecolor='blue', alpha=0.5)",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Histogram for data"
+            ],
+            "Imports": [
+                "import numpy as np",
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "GenerateHistogram",
+            "Parameters": "Marks"
+        },
+        {
+            "Code": [
+                "def Generate_Stems_Leaves(data, leaflen):",
+                "    # Generate Stems and Leaves from data",
+                "",
+                "",
+                "    leaves = []",
+                "    stems = []",
+                "    for d in data:",
+                "        leaves.append(int(str(d)[(-1*leaflen):]))",
+                "        stems.append(int(str(d)[:(-1*leaflen)]))",
+                "    return stems, leaves",
+                ""
+            ],
+            "Description": [
+                "Generate Stems and Leaves from data"
+            ],
+            "Imports": [],
+            "Name": "Generate_Stems_Leaves",
+            "Parameters": "data, leaflen"
+        },
+        {
+            "Code": [
+                "def GenerateStemPlot(stems, leaves):",
+                "    # Generate Stem-Leaf plot for data",
+                "",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    plt.title('Stem and Leaf Plot')",
+                "    plt.xlabel('Stems')",
+                "    plt.ylabel('Leaves')",
+                "    markerline, stemlines, baseline = plt.stem(stems, leaves)",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Stem-Leaf plot for data"
+            ],
+            "Imports": [
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "GenerateStemPlot",
+            "Parameters": "stems, leaves"
+        },
+        {
+            "Code": [
+                "def DensityPlot(X, labels):",
+                "    # Generate Density plot for data",
+                "",
+                "    import seaborn as sns",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    for x, label in zip(X, labels):",
+                "        sns.distplot(x, hist = False, kde = True,",
+                "                    kde_kws = {'linewidth': 3},",
+                "                    label = label)",
+                "    # Plot formatting",
+                "    plt.legend(prop={'size': 16}, title = 'Water vs Beverage')",
+                "    plt.title('Density Plot')",
+                "    plt.xlabel('Days')",
+                "    plt.ylabel('Consumption')",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Density plot for data"
+            ],
+            "Imports": [
+                "import seaborn as sns",
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "DensityPlot",
+            "Parameters": "X, labels"
+        },
+        {
+            "Code": [
+                "def RugPlot(X, labels):",
+                "    # Generate Rug plot for data",
+                "",
+                "    import seaborn as sns",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    for x, label in zip(X, labels):",
+                "        sns.rugplot(x, label=label)",
+                "    plt.title('Rug Plot')",
+                "    plt.xlabel('Days')",
+                "    plt.ylabel('Consumption')",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Rug plot for data"
+            ],
+            "Imports": [
+                "import seaborn as sns",
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "RugPlot",
+            "Parameters": "X, labels"
+        },
+        {
+            "Code": [
+                "def Scatterplot(X, Y):",
+                "    # Generate Scatter plot for data",
+                "",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    plt.scatter(X, Y)",
+                "    plt.title('Scatter Plot')",
+                "    plt.xlabel('Mass')",
+                "    plt.ylabel('Litres')",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Scatter plot for data"
+            ],
+            "Imports": [
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "Scatterplot",
+            "Parameters": "X, Y"
+        },
+        {
+            "Code": [
+                "def BoxPlot(X, title='', xlabel='', ylabel=''):",
+                "    # Generate Box plot for data",
+                "",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    plt.boxplot(X)",
+                "    plt.title(title)",
+                "    plt.xlabel(xlabel)",
+                "    plt.ylabel(ylabel)",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Box plot for data"
+            ],
+            "Imports": [
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "BoxPlot",
+            "Parameters": "X, title='', xlabel='', ylabel=''"
+        },
+        {
+            "Code": [
+                "def SwarmPlot(X, title='', xlabel='', ylabel=''):",
+                "    # Generate Swarm plot for data",
+                "",
+                "    import seaborn as sns",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    sns.swarmplot(X)",
+                "    plt.title(title)",
+                "    plt.xlabel(xlabel)",
+                "    plt.ylabel(ylabel)",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Swarm plot for data"
+            ],
+            "Imports": [
+                "import seaborn as sns",
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "SwarmPlot",
+            "Parameters": "X, title='', xlabel='', ylabel=''"
+        },
+        {
+            "Code": [
+                "def JitteredBoxPlot(X, title='', xlabel='', ylabel=''):",
+                "    # Generate Jittered Box plot for data",
+                "",
+                "    import seaborn as sns",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    sns.boxplot(data=X)",
+                "    sns.swarmplot(data=X, color='grey')",
+                "    plt.title(title)",
+                "    plt.xlabel(xlabel)",
+                "    plt.ylabel(ylabel)",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Jittered Box plot for data"
+            ],
+            "Imports": [
+                "import seaborn as sns",
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "JitteredBoxPlot",
+            "Parameters": "X, title='', xlabel='', ylabel=''"
+        },
+        {
+            "Code": [
+                "def ViolinPlot(X, title=''):",
+                "    # Generate Violin plot for data",
+                "",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    plt.violinplot(X)",
+                "    plt.title(title)",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Violin plot for data"
+            ],
+            "Imports": [
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "ViolinPlot",
+            "Parameters": "X, title=''"
+        },
+        {
+            "Code": [
+                "def RadarPlot(name, statsList, attribute_labels, plot_markers, plot_str_markers):",
+                "    # Generate Radar plot for data",
+                "",
+                "    import numpy as np",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    labels = np.array(attribute_labels)",
+                "    fig= plt.figure()",
+                "    for stats in statsList:",
+                "        angles = np.linspace(0, 2*np.pi, len(labels), endpoint=False)",
+                "        stats = np.concatenate((stats,[stats[0]]))",
+                "        angles = np.concatenate((angles,[angles[0]]))",
+                "        ax = fig.add_subplot(111, polar=True)",
+                "        ax.plot(angles, stats, 'o-', linewidth=2)",
+                "        ax.fill(angles, stats, alpha=0.25)",
+                "        ax.set_thetagrids(angles * 180/np.pi, labels)",
+                "        plt.yticks(markers)",
+                "        ax.set_title(name)",
+                "        ax.grid(True)",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Radar plot for data"
+            ],
+            "Imports": [
+                "import numpy as np",
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "RadarPlot",
+            "Parameters": "name, statsList, attribute_labels, plot_markers, plot_str_markers"
+        },
+        {
+            "Code": [
+                "def RadarPlot_PlotLY(statsList, labels):",
+                "    # Generate Radar plot for data using PlotLY module",
+                "",
+                "    import pandas as pd",
+                "    import plotly.express as px",
+                "",
+                "    for stats in statsList:",
+                "        df = pd.DataFrame(dict(r=stats, theta=labels))",
+                "        fig = px.line_polar(df, r='r', theta='theta', line_close=True)",
+                "    fig.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Radar plot for data using PlotLY module"
+            ],
+            "Imports": [
+                "import pandas as pd",
+                "import plotly.express as px"
+            ],
+            "Name": "RadarPlot_PlotLY",
+            "Parameters": "statsList, labels"
+        },
+        {
+            "Code": [
+                "def FunnelPlot(X, labels):",
+                "    # Generate Funnel plot for data using PlotLY module",
+                "",
+                "    import plotly.express as px",
+                "",
+                "    data = dict(number=X, stage=labels)",
+                "    fig = px.funnel(data, x='number', y='stage')",
+                "    fig.show()",
+                ""
+            ],
+            "Description": [
+                "Generate Funnel plot for data using PlotLY module"
+            ],
+            "Imports": [
+                "import plotly.express as px"
+            ],
+            "Name": "FunnelPlot",
+            "Parameters": "X, labels"
+        },
+        {
+            "Code": [
+                "def GetBytesFromFile(filepath):",
+                "    # Get bytes data from a file",
+                "",
+                "",
+                "    return bytearray(open(filepath, 'rb').read())",
+                ""
+            ],
+            "Description": [
+                "Get bytes data from a file"
+            ],
+            "Imports": [],
+            "Name": "GetBytesFromFile",
+            "Parameters": "filepath"
+        },
+        {
+            "Code": [
+                "def RunnerLength_Compress(filepath=None, data=None, groupLength=1, countFormat='dec'):",
+                "    # Runner Length Encoder - Encode/Compress file or data using variable length runner encoding",
+                "",
+                "",
+                "    compressed_bytes = str(groupLength) + '_' # Header is groupLength followed by '_' to indicate end of value",
+                "    if not filepath == None:",
+                "        data_bytes = GetBytesFromFile(filepath)",
+                "    elif not data == None:",
+                "        data_bytes = bytearray(data, encoding='utf8')",
+                "        if len(data_bytes) < groupLength or groupLength == 0:",
+                "            return None",
+                "        curGroup = None",
+                "        curCount = 0",
+                "        for bg in range(groupLength, len(data_bytes)+1, groupLength):",
+                "            if curGroup == None:",
+                "                curGroup = data_bytes[bg-groupLength:bg]",
+                "                curCount = 1",
+                "            elif data_bytes[bg-groupLength:bg] == curGroup:",
+                "                curCount += 1",
+                "            else:",
+                "                compressed_bytes += curGroup.decode('utf8')",
+                "                if countFormat == 'dec':",
+                "                    compressed_bytes += str(curCount) + '_'",
+                "                elif countFormat == 'hex':",
+                "                    compressed_bytes += str(hex(curCount)) + '_'",
+                "                curGroup = data_bytes[bg-groupLength:bg]",
+                "                curCount = 1",
+                "        compressed_bytes += curGroup.decode('utf8')",
+                "        if countFormat == 'dec':",
+                "            compressed_bytes += str(curCount) + '_'",
+                "        elif countFormat == 'hex':",
+                "            compressed_bytes += str(hex(curCount)) + '_'",
+                "        if len(data_bytes) % groupLength != 0:",
+                "            data_leftout = data_bytes[(int(len(data_bytes) / groupLength) * groupLength):]",
+                "            compressed_bytes += data_leftout.decode('utf8')",
+                "    return bytearray(compressed_bytes, encoding='utf8')",
+                ""
+            ],
+            "Description": [
+                "Runner Length Encoder - Encode/Compress file or data using variable length runner encoding"
+            ],
+            "Imports": [],
+            "Name": "RunnerLength_Compress",
+            "Parameters": "filepath=None, data=None, groupLength=1, countFormat='dec'"
+        },
+        {
+            "Code": [
+                "def RunnerLength_Decompress(filepath=None, data=None, countFormat='dec'):",
+                "    # Runner Length Decoder - Decode file or data using variable length runner algorithm",
+                "",
+                "",
+                "    decompressed_bytes = ''",
+                "    if not filepath == None:",
+                "        data_bytes = GetBytesFromFile(filepath).decode('utf8')",
+                "        groupLength = int(data_bytes[:data_bytes.index('_')])",
+                "        data_bytes = data_bytes[data_bytes.index('_')+1:]",
+                "    elif not data == None:",
+                "        data_bytes = data.decode('utf8')",
+                "        groupLength = int(data_bytes[:data_bytes.index('_')])",
+                "        data_bytes = data_bytes[data_bytes.index('_')+1:]",
+                "        while(data_bytes != None and data_bytes.find('_') != -1 and len(data_bytes) >= groupLength):",
+                "            group = data_bytes[:groupLength]",
+                "            count = 0",
+                "            if countFormat == 'dec':",
+                "                count = int(data_bytes[groupLength:data_bytes.find('_')])",
+                "            elif countFormat == 'hex':",
+                "                count = int(data_bytes[groupLength:data_bytes.find('_')], base=16)",
+                "            decompressed_bytes += group * count",
+                "            if ((data_bytes.find('_') + 1) == len(data_bytes)):",
+                "                data_bytes = None",
+                "            else:",
+                "                data_bytes = data_bytes[data_bytes.find('_')+1:]",
+                "        if data_bytes != None:",
+                "            decompressed_bytes += data_bytes",
+                "    return bytearray(decompressed_bytes, encoding='utf8')",
+                ""
+            ],
+            "Description": [
+                "Runner Length Decoder - Decode file or data using variable length runner algorithm"
+            ],
+            "Imports": [],
+            "Name": "RunnerLength_Decompress",
+            "Parameters": "filepath=None, data=None, countFormat='dec'"
+        },
+        {
+            "Code": [
+                "def CreateMatrix_UserInput(matrixSize):",
+                "    # Creates a matrix with user input",
+                "",
+                "",
+                "    matrix = []",
+                "    for i in range(matrixSize[0]):",
+                "        row = []",
+                "        for j in range(matrixSize[1]):",
+                "            row.append(int(input(\"Enter value at (\" + str(i) + \", \" + str(j) + \"): \")))",
+                "        matrix.append(row)",
+                "    return matrix",
+                ""
+            ],
+            "Description": [
+                "Creates a matrix with user input"
+            ],
+            "Imports": [],
+            "Name": "CreateMatrix_UserInput",
+            "Parameters": "matrixSize"
+        },
+        {
+            "Code": [
+                "def CreateMatrix_RandomInput(matrixSize, ValRange):",
+                "    # Creates a matrix with random input",
+                "",
+                "",
+                "    matrix = []",
+                "    for i in range(matrixSize[0]):",
+                "        row = []",
+                "        for j in range(matrixSize[1]):",
+                "            row.append(random.randint(ValRange[0], ValRange[1]))",
+                "        matrix.append(row)",
+                "    return matrix",
+                ""
+            ],
+            "Description": [
+                "Creates a matrix with random input"
+            ],
+            "Imports": [],
+            "Name": "CreateMatrix_RandomInput",
+            "Parameters": "matrixSize, ValRange"
+        },
+        {
+            "Code": [
+                "def MatSum(matrix):",
+                "    # Calculate sum of all values in a matrix",
+                "",
+                "",
+                "    sum = 0",
+                "    for row in matrix:",
+                "        for val in row:",
+                "            sum += val",
+                "    return sum",
+                ""
+            ],
+            "Description": [
+                "Calculate sum of all values in a matrix"
+            ],
+            "Imports": [],
+            "Name": "MatSum",
+            "Parameters": "matrix"
+        },
+        {
+            "Code": [
+                "def MatMax(matrix):",
+                "    # Calculate max of all values in a matrix",
+                "",
+                "",
+                "    max = 0",
+                "    for row in matrix:",
+                "        for val in row:",
+                "            if max < val:",
+                "                max = val",
+                "    return max",
+                ""
+            ],
+            "Description": [
+                "Calculate max of all values in a matrix"
+            ],
+            "Imports": [],
+            "Name": "MatMax",
+            "Parameters": "matrix"
+        },
+        {
+            "Code": [
+                "def MatFreqDist(matrix):",
+                "    # Calculate frequency distribution of all values in a matrix",
+                "",
+                "",
+                "    freq = {}",
+                "    for row in matrix:",
+                "        for val in row:",
+                "            if val in freq.keys():",
+                "                freq[val] += 1",
+                "            else:",
+                "                freq[val] = 1",
+                "    return freq",
+                ""
+            ],
+            "Description": [
+                "Calculate frequency distribution of all values in a matrix"
+            ],
+            "Imports": [],
+            "Name": "MatFreqDist",
+            "Parameters": "matrix"
+        },
+        {
+            "Code": [
+                "def MatMean(matrix):",
+                "    # Calculate mean of all values in a matrix",
+                "",
+                "",
+                "    sum = 0",
+                "    for row in matrix:",
+                "        for val in row:",
+                "            sum += val",
+                "    return sum / (len(matrix) * len(matrix[0]))",
+                ""
+            ],
+            "Description": [
+                "Calculate mean of all values in a matrix"
+            ],
+            "Imports": [],
+            "Name": "MatMean",
+            "Parameters": "matrix"
+        },
+        {
+            "Code": [
+                "def MatMedian(matrix):",
+                "    # Calculate median of all values in a matrix",
+                "",
+                "",
+                "    arr = []",
+                "    for row in matrix:",
+                "        for val in row:",
+                "            arr.append(val)",
+                "    # Bubble Sort Code",
+                "    n = len(arr)",
+                "    for i in range(n):",
+                "        for j in range(0, n-i-1):",
+                "            if arr[j] > arr[j+1] :",
+                "                arr[j], arr[j+1] = arr[j+1], arr[j]",
+                "    if len(arr) % 2 == 1:",
+                "        return arr[int((len(arr) - 1)/2)]",
+                "    else:",
+                "        return (arr[int(len(arr)/2)] + arr[int(len(arr)/2 - 1)]) / 2",
+                ""
+            ],
+            "Description": [
+                "Calculate median of all values in a matrix"
+            ],
+            "Imports": [],
+            "Name": "MatMedian",
+            "Parameters": "matrix"
+        },
+        {
+            "Code": [
+                "def MatMode(matrix):",
+                "    # Calculate mode of all values in a matrix",
+                "",
+                "",
+                "    modeVal = -1",
+                "    modeVal_freq = -1",
+                "    freq = MatFreqDist(matrix)",
+                "    for key in freq.keys():",
+                "        if freq[key] > modeVal_freq:",
+                "            modeVal = key",
+                "            modeVal_freq = freq[key]",
+                "    return modeVal",
+                ""
+            ],
+            "Description": [
+                "Calculate mode of all values in a matrix"
+            ],
+            "Imports": [],
+            "Name": "MatMode",
+            "Parameters": "matrix"
+        },
+        {
+            "Code": [
+                "def MatStandardDeviation(matrix):",
+                "    # Calculate Standard Deviation of all values in a matrix",
+                "",
+                "",
+                "    SD = 0.0",
+                "    mean = MatMean(matrix)",
+                "    sumsqaurediff = 0.0",
+                "    for row in matrix:",
+                "        for val in row:",
+                "            sumsqaurediff += (val - mean) ** 2",
+                "    SD = (sumsqaurediff / (len(matrix) * len(matrix[0]))) ** (1/2)",
+                "    return SD",
+                ""
+            ],
+            "Description": [
+                "Calculate Standard Deviation of all values in a matrix"
+            ],
+            "Imports": [],
+            "Name": "MatStandardDeviation",
+            "Parameters": "matrix"
+        },
+        {
+            "Code": [
+                "def ImageFreqDist(Image, pixelRange=(0, 255)):",
+                "    # Calculate frequency distribution of all values in a image",
+                "",
+                "    from tqdm import tqdm",
+                "",
+                "    Freq = []",
+                "    for i in range(pixelRange[0], pixelRange[1]+1):",
+                "        Freq.append(0)",
+                "    for row in tqdm(Image):",
+                "        for pixel in row:",
+                "            Freq[pixel - pixelRange[0]] += 1",
+                "    return Freq",
+                ""
+            ],
+            "Description": [
+                "Calculate frequency distribution of all values in a image"
+            ],
+            "Imports": [
+                "from tqdm import tqdm"
+            ],
+            "Name": "ImageFreqDist",
+            "Parameters": "Image, pixelRange=(0, 255)"
+        },
+        {
+            "Code": [
+                "def GetCumulativeDist(Dist):",
+                "    # Calculate Cumulative distribution of a distribution",
+                "",
+                "",
+                "    CumulativeDist = []",
+                "    cumulativeVal = 0.0",
+                "    for d in Dist:",
+                "        cumulativeVal += d",
+                "        CumulativeDist.append(cumulativeVal)",
+                "    return np.array(CumulativeDist)",
+                ""
+            ],
+            "Description": [
+                "Calculate Cumulative distribution of a distribution"
+            ],
+            "Imports": [],
+            "Name": "GetCumulativeDist",
+            "Parameters": "Dist"
+        },
+        {
+            "Code": [
+                "def HistPlot(Data, nbins=25):",
+                "    # Plot Histogram of data",
+                "",
+                "    import numpy as np",
+                "    import matplotlib.pyplot as plt",
+                "",
+                "    X = np.arange(len(Data))",
+                "    n, bins, patches = plt.hist(Data, nbins, facecolor='blue', alpha=0.5)",
+                "    plt.show()",
+                ""
+            ],
+            "Description": [
+                "Plot Histogram of data"
+            ],
+            "Imports": [
+                "import numpy as np",
+                "import matplotlib.pyplot as plt"
+            ],
+            "Name": "HistPlot",
+            "Parameters": "Data, nbins=25"
+        },
+        {
+            "Code": [
+                "def ceil(a):",
+                "    # Calculate ceiling of a value",
+                "",
+                "",
+                "    if (a-float(int(a))) > 0:",
+                "        return a + 1",
+                "    return a",
+                ""
+            ],
+            "Description": [
+                "Calculate ceiling of a value"
+            ],
+            "Imports": [],
+            "Name": "ceil",
+            "Parameters": "a"
+        },
+        {
+            "Code": [
+                "def rgb2gray(I):",
+                "    # Convert RGB image to GreyScale",
+                "",
+                "    import numpy as np",
+                "",
+                "    I = I.astype(int)",
+                "    r, g, b = I[:,:,0], I[:,:,1], I[:,:,2]",
+                "    gray = (0.2989 * r + 0.5870 * g + 0.1140 * b)",
+                "    # gray = (1 * r + 1 * g + 1 * b) / 3",
+                "    return gray.astype(np.uint8)",
+                ""
+            ],
+            "Description": [
+                "Convert RGB image to GreyScale"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "rgb2gray",
+            "Parameters": "I"
+        },
+        {
+            "Code": [
+                "def SaltPepperNoise(I, prob):",
+                "    # Add Salt and Pepper noise to a image",
+                "",
+                "    import random",
+                "    import numpy as np",
+                "",
+                "    max = 255",
+                "    I_g = I.copy()",
+                "    probpercent = int(prob*100)",
+                "    # Greyscale",
+                "    if I.ndim == 2:",
+                "        I_g = np.reshape(I_g, (I_g.shape[0], I_g.shape[1], 1))",
+                "    for i in range(I_g.shape[0]):",
+                "        for j in range(I_g.shape[1]):",
+                "            r = random.randrange(1, 100)",
+                "            #r = random.randint(1, 100)",
+                "            if r <= probpercent:",
+                "                if r <= int(probpercent / 2):",
+                "                    I_g[i, j, :] = np.ones(I_g.shape[2]) * max # Salt",
+                "                else:",
+                "                    I_g[i, j] = np.ones(I_g.shape[2]) * 0 # Pepper",
+                "    if I.ndim == 2:",
+                "        I_g = np.reshape(I_g, (I_g.shape[0], I_g.shape[1]))",
+                "    I_g = I_g.astype(np.uint8)",
+                "    return I_g",
+                ""
+            ],
+            "Description": [
+                "Add Salt and Pepper noise to a image"
+            ],
+            "Imports": [
+                "import random",
+                "import numpy as np"
+            ],
+            "Name": "SaltPepperNoise",
+            "Parameters": "I, prob"
+        },
+        {
+            "Code": [
+                "def GaussianNoise(I, mean, variance):",
+                "    # Add Gaussian noise to a image",
+                "",
+                "    import numpy as np",
+                "",
+                "    I_g = I.astype(int).copy()",
+                "    SD = variance ** 0.5",
+                "    if I.ndim == 2:",
+                "        I_g = np.reshape(I_g, (I_g.shape[0], I_g.shape[1], 1))",
+                "    rows, pixs, channels = I_g.shape",
+                "    noise = np.random.normal(mean, SD, (rows, pixs, channels))",
+                "    noise = noise.reshape(rows, pixs, channels)",
+                "    I_g = np.add(I_g, noise.astype(int))",
+                "    if I.ndim == 2:",
+                "        I_g = np.reshape(I_g, (I_g.shape[0], I_g.shape[1]))",
+                "    I_g = I_g.astype(np.uint8)",
+                "    return I_g",
+                ""
+            ],
+            "Description": [
+                "Add Gaussian noise to a image"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "GaussianNoise",
+            "Parameters": "I, mean, variance"
+        },
+        {
+            "Code": [
+                "def SpeckleNoise(I):",
+                "    # Add Speckle noise to a image",
+                "",
+                "    import numpy as np",
+                "",
+                "    I_g = I.astype(int).copy()",
+                "    if I.ndim == 2:",
+                "        I_g = np.reshape(I_g, (I_g.shape[0], I_g.shape[1], 1))",
+                "    rows, pixs, channels = I_g.shape",
+                "    noise = np.random.randn(rows, pixs, channels)",
+                "    noise = noise.reshape(rows, pixs, channels)",
+                "    I_g = np.add(I_g, np.multiply(I_g, noise).astype(int))",
+                "    if I.ndim == 2:",
+                "        I_g = np.reshape(I_g, (I_g.shape[0], I_g.shape[1]))",
+                "    I_g = I_g.astype(np.uint8)",
+                "    return I_g",
+                ""
+            ],
+            "Description": [
+                "Add Speckle noise to a image"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "SpeckleNoise",
+            "Parameters": "I"
+        },
+        {
+            "Code": [
+                "def ImgAverage(Is):",
+                "    # Get Average image of many images",
+                "",
+                "    import numpy as np",
+                "",
+                "    AvgI = Is[0].copy().astype(int)",
+                "    for imgindex in range(len(Is)):",
+                "        if imgindex != 0:",
+                "            Is[imgindex] = Is[imgindex].astype(int)",
+                "            AvgI = np.add(AvgI, Is[imgindex])",
+                "    AvgI = np.divide(AvgI, len(Is)).astype(int)",
+                "    AvgI = AvgI.astype(np.uint8)",
+                "    return AvgI",
+                ""
+            ],
+            "Description": [
+                "Get Average image of many images"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "ImgAverage",
+            "Parameters": "Is"
+        },
+        {
+            "Code": [
+                "def BillinearInterpolation_Scaling(Image, Scale=(2, 2)):",
+                "    # Scale an image using Billinear Interpolation Algorithm",
+                "",
+                "    import numpy as np",
+                "    from tqdm import tqdm",
+                "",
+                "    NewSize = (int(round(Image.shape[0]*Scale[0])), int(round(Image.shape[1]*Scale[1])))",
+                "    ScaledImg = np.ones(NewSize) * -1",
+                "    for i in range(Image.shape[0]):",
+                "        for j in range(Image.shape[1]):",
+                "            if int(i % (1/Scale[0])) == 0 and int(j % Scale[1]) == 0:",
+                "                ScaledImg[int(i*Scale[0]), int(j*Scale[1])] = Image[i, j]",
+                "    # Fill Missing Spots",
+                "    for i in tqdm(range(NewSize[0])):",
+                "        for j in range(NewSize[1]):",
+                "            if ScaledImg[i, j] == -1:",
+                "                InvCo = (i/Scale[0], j/Scale[1])",
+                "                A1 = (InvCo[0] - int(InvCo[0]))*(InvCo[1] - int(InvCo[1]))",
+                "                A2 = (1 - (InvCo[0] - int(InvCo[0])))*(InvCo[1] - int(InvCo[1]))",
+                "                A3 = (InvCo[0] - int(InvCo[0]))*(1 - (InvCo[1] - int(InvCo[1])))",
+                "                A4 = (1 - (InvCo[0] - int(InvCo[0])))*(1 - (InvCo[1] - int(InvCo[1])))",
+                "                A = A4",
+                "                if int(InvCo[0]) + 1 < Image.shape[0] and int(InvCo[1]) + 1 < Image.shape[1]:",
+                "                    A += A1 + A2 + A3",
+                "                elif int(InvCo[0]) + 1 < Image.shape[0]:",
+                "                    A += A3",
+                "                elif int(InvCo[1]) + 1 < Image.shape[1]:",
+                "                    A += A2",
+                "                ScaledImg[i, j] = (A4*Image[int(InvCo[0]), int(InvCo[1])])/A",
+                "                if int(InvCo[0]) + 1 < Image.shape[0] and int(InvCo[1]) + 1 < Image.shape[1]:",
+                "                    ScaledImg[i, j] += (A1*Image[int(InvCo[0]) + 1, int(InvCo[1]) + 1])/A",
+                "                    ScaledImg[i, j] += (A3*Image[int(InvCo[0]) + 1, int(InvCo[1])])/A",
+                "                    ScaledImg[i, j] += (A2*Image[int(InvCo[0]), int(InvCo[1]) + 1])/A",
+                "                elif int(InvCo[0]) + 1 < Image.shape[0]:",
+                "                    ScaledImg[i, j] += (A3*Image[int(InvCo[0]) + 1, int(InvCo[1])])/A",
+                "                elif int(InvCo[1]) + 1 < Image.shape[1]:",
+                "                    ScaledImg[i, j] += (A2*Image[int(InvCo[0]), int(InvCo[1]) + 1])/A",
+                "    return ScaledImg",
+                ""
+            ],
+            "Description": [
+                "Scale an image using Billinear Interpolation Algorithm"
+            ],
+            "Imports": [
+                "import numpy as np",
+                "from tqdm import tqdm"
+            ],
+            "Name": "BillinearInterpolation_Scaling",
+            "Parameters": "Image, Scale=(2, 2)"
+        },
+        {
+            "Code": [
+                "def BillinearInterpolation_Rotation(Image, Angle=0.0):",
+                "    # Rotate an image using Billinear Interpolation Algorithm",
+                "",
+                "    import numpy as np",
+                "    from tqdm import tqdm",
+                "",
+                "    anglerad = -Angle * math.pi / 180.0",
+                "    NewSize = (Image.shape[0], Image.shape[1])",
+                "    RotImg = np.ones(NewSize) * -1",
+                "    for i in range(Image.shape[0]):",
+                "        for j in range(Image.shape[1]):",
+                "            newi = math.cos(anglerad)*i + math.sin(anglerad)*j",
+                "            newj = -1*math.sin(anglerad)*i + math.cos(anglerad)*j",
+                "            if (newi-float(int(newi))) == 0.0 and (newj-float(int(newj))) == 0.0:",
+                "                RotImg[int(newi), int(newj)] = Image[i, j]",
+                "    # Fill Missing Spots",
+                "    for i in tqdm(range(NewSize[0])):",
+                "        for j in range(NewSize[1]):",
+                "            if RotImg[i, j] == -1:",
+                "                InvCo = [math.cos(anglerad)*i - math.sin(anglerad)*j, math.sin(anglerad)*i + math.cos(anglerad)*j]",
+                "                A1 = (InvCo[0] - int(InvCo[0]))*(InvCo[1] - int(InvCo[1]))",
+                "                A2 = (1 - (InvCo[0] - int(InvCo[0])))*(InvCo[1] - int(InvCo[1]))",
+                "                A3 = (InvCo[0] - int(InvCo[0]))*(1 - (InvCo[1] - int(InvCo[1])))",
+                "                A4 = (1 - (InvCo[0] - int(InvCo[0])))*(1 - (InvCo[1] - int(InvCo[1])))",
+                "                A = A4",
+                "                if int(InvCo[0]) + 1 < Image.shape[0] and int(InvCo[1]) + 1 < Image.shape[1]:",
+                "                    A += A1 + A2 + A3",
+                "                elif int(InvCo[0]) + 1 < Image.shape[0]:",
+                "                    A += A3",
+                "                elif int(InvCo[1]) + 1 < Image.shape[1]:",
+                "                    A += A2",
+                "                if int(InvCo[0]) < Image.shape[0] and int(InvCo[1]) < Image.shape[1]:",
+                "                    RotImg[i, j] = (A4*Image[int(InvCo[0]), int(InvCo[1])])/A",
+                "                    if int(InvCo[0]) + 1 < Image.shape[0] and int(InvCo[1]) + 1 < Image.shape[1]:",
+                "                        RotImg[i, j] += (A1*Image[int(InvCo[0]) + 1, int(InvCo[1]) + 1])/A",
+                "                        RotImg[i, j] += (A3*Image[int(InvCo[0]) + 1, int(InvCo[1])])/A",
+                "                        RotImg[i, j] += (A2*Image[int(InvCo[0]), int(InvCo[1]) + 1])/A",
+                "                    elif int(InvCo[0]) + 1 < Image.shape[0]:",
+                "                        RotImg[i, j] += (A3*Image[int(InvCo[0]) + 1, int(InvCo[1])])/A",
+                "                    elif int(InvCo[1]) + 1 < Image.shape[1]:",
+                "                        RotImg[i, j] += (A2*Image[int(InvCo[0]), int(InvCo[1]) + 1])/A",
+                "    return RotImg",
+                ""
+            ],
+            "Description": [
+                "Rotate an image using Billinear Interpolation Algorithm"
+            ],
+            "Imports": [
+                "import numpy as np",
+                "from tqdm import tqdm"
+            ],
+            "Name": "BillinearInterpolation_Rotation",
+            "Parameters": "Image, Angle=0.0"
+        },
+        {
+            "Code": [
+                "def RotateImage(Image, angle, cropBoundary=False):",
+                "    # Rotate an image",
+                "",
+                "    import imutils",
+                "    import numpy as np",
+                "",
+                "    RotatedImage = None",
+                "    if cropBoundary:",
+                "        RotatedImage = imutils.rotate(Image, angle)",
+                "    else:",
+                "        RotatedImage = imutils.rotate_bound(Image, angle)",
+                "    return RotatedImage",
+                ""
+            ],
+            "Description": [
+                "Rotate an image"
+            ],
+            "Imports": [
+                "import imutils",
+                "import numpy as np"
+            ],
+            "Name": "RotateImage",
+            "Parameters": "Image, angle, cropBoundary=False"
+        },
+        {
+            "Code": [
+                "def ImagePixelReplace(Image, pixelReplaceVals):",
+                "    # Replace all pixel values in an image using a mapping",
+                "",
+                "    import numpy as np",
+                "    from tqdm import tqdm",
+                "",
+                "    I = np.zeros(Image.shape)",
+                "    for i in tqdm(range(Image.shape[0])):",
+                "        for j in range(Image.shape[1]):",
+                "            I[i, j] = pixelReplaceVals[Image[i, j]]",
+                "    return I",
+                ""
+            ],
+            "Description": [
+                "Replace all pixel values in an image using a mapping"
+            ],
+            "Imports": [
+                "import numpy as np",
+                "from tqdm import tqdm"
+            ],
+            "Name": "ImagePixelReplace",
+            "Parameters": "Image, pixelReplaceVals"
+        },
+        {
+            "Code": [
+                "def NormaliseToRange(I, Range=(0, 255)):",
+                "    # Normalise all values in a matrix to a range",
+                "",
+                "    import numpy as np",
+                "",
+                "    I_g = I.copy()",
+                "    if I.ndim == 2:",
+                "        I_g = np.reshape(I_g, (I_g.shape[0], I_g.shape[1], 1))",
+                "    maxVal = np.max(np.max(I_g, axis=1), axis=0)",
+                "    minVal = np.min(np.min(I_g, axis=1), axis=0)",
+                "    minmaxRange = maxVal - minVal",
+                "    for i in range(I_g.shape[0]):",
+                "        for j in range(I_g.shape[1]):",
+                "            for c in range(I_g.shape[2]):",
+                "                I_g[i, j, c] = (((I_g[i, j, c] - minVal[c]) / minmaxRange) * (Range[1] - Range[0])) + Range[0]",
+                "    if I.ndim == 2:",
+                "        I_g = np.reshape(I_g, (I_g.shape[0], I_g.shape[1]))",
+                "    return I_g",
+                ""
+            ],
+            "Description": [
+                "Normalise all values in a matrix to a range"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "NormaliseToRange",
+            "Parameters": "I, Range=(0, 255)"
+        },
+        {
+            "Code": [
+                "def HistogramMatching(I_input, I_ref, pixelRange=(0, 255)):",
+                "    # Perform Histogram matching algorithm on an input image and a reference image",
+                "",
+                "    import random",
+                "    import numpy as np",
+                "    from tqdm import tqdm",
+                "",
+                "    HistVals_input, HistProbDist_input, Hist2PixVals_input = HistogramEqualisation(I_input)",
+                "    HistVals_ref, HistProbDist_ref, Hist2PixVals_ref = HistogramEqualisation(I_ref)",
+                "    ProcessedDist = []",
+                "    noMapCheck = True",
+                "    for hv in tqdm(HistVals_input):",
+                "        if len(Hist2PixVals_ref[hv - pixelRange[0]]) > 0:",
+                "            randindex = random.randint(0, len(Hist2PixVals_ref[hv - pixelRange[0]])-1)",
+                "            ProcessedDist.append(Hist2PixVals_ref[hv - pixelRange[0]][randindex])",
+                "            noMapCheck = False",
+                "        else:",
+                "            ProcessedDist.append(-1)",
+                "            # if len(ProcessedDist) > 0:",
+                "            #     ProcessedDist.append(ProcessedDist[-1])",
+                "            # else:",
+                "            #     ProcessedDist.append(ProcessedDist[-1])",
+                "    if not noMapCheck:",
+                "        while (-1 in ProcessedDist):",
+                "            if ProcessedDist[0] == -1:",
+                "                ProcessedDist[0] = ProcessedDist[1]",
+                "            if ProcessedDist[-1] == -1:",
+                "                ProcessedDist[-1] = ProcessedDist[-2]",
+                "            for pdi in range(1, len(ProcessedDist)-1):",
+                "                if ProcessedDist[pdi] == -1:",
+                "                    if ProcessedDist[pdi-1] != -1 and ProcessedDist[pdi+1] != -1:",
+                "                        ProcessedDist[pdi] = int(round((ProcessedDist[pdi-1] + ProcessedDist[pdi+1]) / 2))",
+                "                    elif ProcessedDist[pdi-1] == -1 and ProcessedDist[pdi+1] != -1:",
+                "                        ProcessedDist[pdi] = ProcessedDist[pdi+1]",
+                "                    elif ProcessedDist[pdi-1] != -1 and ProcessedDist[pdi+1] == -1:",
+                "                        ProcessedDist[pdi] = ProcessedDist[pdi-1]",
+                "        ProbDist_input = np.array(GetFreqDist(I_input, pixelRange)) / (I_input.shape[0]*I_input.shape[1])",
+                "        ProbDist_processed = []",
+                "        for i in range(len(ProcessedDist)):",
+                "            ProbDist_processed.append(0.0)",
+                "        for pi in range(ProbDist_input.shape[0]):",
+                "            ProbDist_processed[ProcessedDist[pi] - pixelRange[0]] += ProbDist_input",
+                "        ProbDist_processed = np.array(ProbDist_processed)",
+                "        return ProcessedDist, ProbDist_processed",
+                "    print(\"No Mapping Exists for Reference to Input Image\")",
+                "    return None",
+                ""
+            ],
+            "Description": [
+                "Perform Histogram matching algorithm on an input image and a reference image"
+            ],
+            "Imports": [
+                "import random",
+                "import numpy as np",
+                "from tqdm import tqdm"
+            ],
+            "Name": "HistogramMatching",
+            "Parameters": "I_input, I_ref, pixelRange=(0, 255)"
+        },
+        {
+            "Code": [
+                "def HistogramEqualisation(Image, pixelRange=(0, 255)):",
+                "    # Perform Histogram Equalisation algorithm on an image",
+                "",
+                "    import numpy as np",
+                "",
+                "    FreqDist = np.array(GetFreqDist(Image, pixelRange))",
+                "    TotPixels = Image.shape[0]*Image.shape[1]",
+                "    ProbDist = (FreqDist / TotPixels)",
+                "    CumulativeProbDist = GetCumulativeDist(ProbDist)",
+                "    HistVals = np.round(CumulativeProbDist * (pixelRange[1] - pixelRange[0])).astype(int)",
+                "    HistProbDist = []",
+                "    Hist2PixVals = []",
+                "    for i in range(pixelRange[0], pixelRange[1]+1):",
+                "        HistProbDist.append(0.0)",
+                "        Hist2PixVals.append([])",
+                "    for hvi in range(HistVals.shape[0]):",
+                "        HistProbDist[HistVals[hvi] - pixelRange[0]] += ProbDist[hvi]",
+                "        Hist2PixVals[HistVals[hvi] - pixelRange[0]].append(hvi + pixelRange[0])",
+                "    HistProbDist = np.array(HistProbDist)",
+                "    return HistVals, HistProbDist, Hist2PixVals",
+                ""
+            ],
+            "Description": [
+                "Perform Histogram Equalisation algorithm on an image"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "HistogramEqualisation",
+            "Parameters": "Image, pixelRange=(0, 255)"
+        },
+        {
+            "Code": [
+                "def CrossCorrelation(I, W, stride=(1, 1), mean_mode='full'):",
+                "    # Perform Cross Correlation algorithm on an input image with a window",
+                "",
+                "    import numpy as np",
+                "    from tqdm import tqdm",
+                "",
+                "    I2 = I.copy()",
+                "    W = W.copy()",
+                "    if I.ndim == 2:",
+                "        I2 = np.reshape(I2, (I2.shape[0], I2.shape[1], 1))",
+                "        W = np.reshape(W, (W.shape[0], W.shape[1], 1))",
+                "    padSize = (I2.shape[0] + 2*(W.shape[0]-1), I2.shape[1] + 2*(W.shape[1]-1), I2.shape[2])",
+                "    I_padded = np.zeros(padSize)",
+                "    I_padded[W.shape[0]-1:-W.shape[0]+1, W.shape[1]-1:-W.shape[1]+1, :] = I2[:, :, :]",
+                "    outSize = (int((I2.shape[0] + W.shape[0])/stride[0]), int((I2.shape[1] + W.shape[1])/stride[1]), I2.shape[2])",
+                "    I_g = np.zeros(outSize)",
+                "    I_bar = None",
+                "    SDProd = np.ones(I2.shape[2])",
+                "    W_bar = np.sum(np.sum(W, axis=1), axis=0) / (W.shape[0]*W.shape[1])",
+                "    if mean_mode == 'full':",
+                "        I_bar = np.sum(np.sum(I2, axis=1), axis=0) / (I2.shape[0]*I2.shape[1])",
+                "        for c in range(I2.shape[2]):",
+                "            SDProd[c] = np.sum(np.sum((I2[:, :, c] - I_bar)**2, axis=1), axis=0) ** (1/2)",
+                "            SDProd[c] *= np.sum(np.sum((W[:, :, c] - W_bar)**2, axis=1), axis=0) ** (1/2)",
+                "            #SDProd[c] = np.std(I2[:, :, c].flatten()) * np.std(W[:, :, c].flatten())",
+                "    for i in tqdm(range(0, I_padded.shape[0]-W.shape[0]+1, stride[0])):",
+                "        for j in range(0, I_padded.shape[1]-W.shape[1]+1, stride[1]):",
+                "            if mean_mode == 'window':",
+                "                I_bar = np.sum(np.sum(I_padded[i:i+W.shape[0], j:j+W.shape[1], :], axis=1), axis=0) / (W.shape[0]*W.shape[1])",
+                "            for c in range(I_padded.shape[2]):",
+                "                if mean_mode == 'window':",
+                "                    SDProd[c] = np.sum(np.sum((I_padded[i:i+W.shape[0], j:j+W.shape[1], c] - I_bar)**2, axis=1), axis=0) ** (1/2)",
+                "                    SDProd[c] *= np.sum(np.sum((W[:, :, c] - W_bar)**2, axis=1), axis=0) ** (1/2)",
+                "                    #SDProd[c] = np.std(I_padded[i:i+W.shape[0], j:j+W.shape[1], c].flatten()) * np.std(W[:, :, c].flatten())",
+                "                I_val = I_padded[i:i+W.shape[0], j:j+W.shape[1], c] - I_bar[c]",
+                "                W_val = W[:, :, c] - W_bar[c]",
+                "                I_g[i, j, c] = np.sum(np.sum(np.multiply(I_val, W_val), axis=1), axis=0) / SDProd[c]",
+                "    if I.ndim == 2:",
+                "        I_g = np.reshape(I_g, (I_g.shape[0], I_g.shape[1]))",
+                "        I_padded = np.reshape(I_padded, (I_padded.shape[0], I_padded.shape[1]))",
+                "        W = np.reshape(W, (W.shape[0], W.shape[1]))",
+                "    return I_g, I_padded",
+                ""
+            ],
+            "Description": [
+                "Perform Cross Correlation algorithm on an input image with a window"
+            ],
+            "Imports": [
+                "import numpy as np",
+                "from tqdm import tqdm"
+            ],
+            "Name": "CrossCorrelation",
+            "Parameters": "I, W, stride=(1, 1), mean_mode='full'"
+        },
+        {
+            "Code": [
+                "def Correlation(I, W, stride=(1, 1)):",
+                "    # Perform Correlation algorithm on an input image with a window",
+                "",
+                "    import numpy as np",
+                "    from tqdm import tqdm",
+                "",
+                "    I2 = I.copy()",
+                "    W = W.copy()",
+                "    if I.ndim == 2:",
+                "        I2 = np.reshape(I2, (I2.shape[0], I2.shape[1], 1))",
+                "        W = np.reshape(W, (W.shape[0], W.shape[1], 1))",
+                "    padSize = (I2.shape[0] + 2*(W.shape[0]-1), I2.shape[1] + 2*(W.shape[1]-1), I2.shape[2])",
+                "    I_padded = np.zeros(padSize)",
+                "    I_padded[W.shape[0]-1:-W.shape[0]+1, W.shape[1]-1:-W.shape[1]+1, :] = I2[:, :, :]",
+                "    outSize = (int((I2.shape[0] + W.shape[0])/stride[0]), int((I2.shape[1] + W.shape[1])/stride[1]), I2.shape[2])",
+                "    I_g = np.zeros(outSize)",
+                "    for i in tqdm(range(0, I_padded.shape[0]-W.shape[0]+1, stride[0])):",
+                "        for j in range(0, I_padded.shape[1]-W.shape[1]+1, stride[1]):",
+                "            for c in range(I_padded.shape[2]):",
+                "                I_g[i, j, c] = np.sum(np.sum(np.multiply(I_padded[i:i+W.shape[0], j:j+W.shape[1], c], W[:, :, c]), axis=1), axis=0)",
+                "    if I.ndim == 2:",
+                "        I_g = np.reshape(I_g, (I_g.shape[0], I_g.shape[1]))",
+                "        I_padded = np.reshape(I_padded, (I_padded.shape[0], I_padded.shape[1]))",
+                "        W = np.reshape(W, (W.shape[0], W.shape[1]))",
+                "    return I_g, I_padded",
+                ""
+            ],
+            "Description": [
+                "Perform Correlation algorithm on an input image with a window"
+            ],
+            "Imports": [
+                "import numpy as np",
+                "from tqdm import tqdm"
+            ],
+            "Name": "Correlation",
+            "Parameters": "I, W, stride=(1, 1)"
+        },
+        {
+            "Code": [
+                "def ApplyMedianFilter(I, WSize=(3, 3), stride=(1, 1)):",
+                "    # Apply Median filtering to an image",
+                "",
+                "    import numpy as np",
+                "    from tqdm import tqdm",
+                "",
+                "    I2 = I.copy()",
+                "    if I.ndim == 2:",
+                "        I2 = np.reshape(I2, (I2.shape[0], I2.shape[1], 1))",
+                "    padSize = (I2.shape[0] + 2*(WSize[0]-1), I2.shape[1] + 2*(WSize[1]-1), I2.shape[2])",
+                "    I_padded = np.zeros(padSize)",
+                "    I_padded[WSize[0]-1:-WSize[0]+1, WSize[1]-1:-WSize[1]+1, :] = I2[:, :, :]",
+                "    outSize = (int((I2.shape[0] + WSize[0])/stride[0]), int((I2.shape[1] + WSize[1])/stride[1]), I2.shape[2])",
+                "    I_g = np.zeros(outSize)",
+                "    for i in tqdm(range(0, I_padded.shape[0]-WSize[0]+1, stride[0])):",
+                "        for j in range(0, I_padded.shape[1]-WSize[1]+1, stride[1]):",
+                "            for c in range(I_padded.shape[2]):",
+                "                I_g[i, j, c] = np.median(I_padded[i:i+WSize[0], j:j+WSize[1], c])",
+                "    if I.ndim == 2:",
+                "        I_g = np.reshape(I_g, (I_g.shape[0], I_g.shape[1]))",
+                "    I_g = np.round(I_g).astype(np.uint8)",
+                "    return I_g",
+                ""
+            ],
+            "Description": [
+                "Apply Median filtering to an image"
+            ],
+            "Imports": [
+                "import numpy as np",
+                "from tqdm import tqdm"
+            ],
+            "Name": "ApplyMedianFilter",
+            "Parameters": "I, WSize=(3, 3), stride=(1, 1)"
+        },
+        {
+            "Code": [
+                "def GenerateEdgeFilter(size=(3, 3)):",
+                "    # Generate an Edge filter window",
+                "",
+                "    import numpy as np",
+                "",
+                "    if size[0]%2 == 0 or size[1] == 0:",
+                "        return None",
+                "    W = np.ones(size) * -1",
+                "    W[int(size[0]/2), int(size[1]/2)] = -(size[0]*size[1] - 1)",
+                "    return W",
+                ""
+            ],
+            "Description": [
+                "Generate an Edge filter window"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "GenerateEdgeFilter",
+            "Parameters": "size=(3, 3)"
+        },
+        {
+            "Code": [
+                "def GenerateAverageFilter(size=(3, 3)):",
+                "    # Generate an average filter window",
+                "",
+                "    import numpy as np",
+                "",
+                "    return np.ones(size).astype(float) / (size[0]*size[1])",
+                ""
+            ],
+            "Description": [
+                "Generate an average filter window"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "GenerateAverageFilter",
+            "Parameters": "size=(3, 3)"
+        },
+        {
+            "Code": [
+                "def BoundingBox(Image, pos, window_size, radius=1, color=[0, 0, 0]):",
+                "    # Apply Bounding box at a location in an image",
+                "",
+                "    import numpy as np",
+                "",
+                "    I = Image.copy()",
+                "    window_size = [window_size[0], window_size[1]]",
+                "    for wi in range(len(window_size)):",
+                "        if pos[wi] + window_size[wi] > Image.shape[wi]:",
+                "            window_size[wi] = Image.shape[wi] - pos[wi]",
+                "    if I.ndim == 2:",
+                "        for i in [pos[0], pos[0] + window_size[0]]:",
+                "            for p in range(pos[1], pos[1] + window_size[1]):",
+                "                I[i, p] = color[0]",
+                "                #print(\"Markx:\", i, p, color[0])",
+                "        for j in [pos[1], pos[1] + window_size[1]]:",
+                "            for p in range(pos[0], pos[0] + window_size[0]):",
+                "                I[p, j] = color[0]",
+                "                #print(\"Marky:\", p, j, color[0])",
+                "    elif I.ndim == 3:",
+                "        for i in [pos[0], pos[0] + window_size[0]]:",
+                "            for p in range(pos[1], pos[1] + window_size[1]):",
+                "                I[i, p, :] = color[:I.shape[2]]",
+                "        for j in [pos[1], pos[1] + window_size[1]]:",
+                "            for p in range(pos[0], pos[0] + window_size[0]):",
+                "                I[p, j, :] = color[:I.shape[2]]",
+                "    for ri in range(1, radius+1):",
+                "        I = BoundingBox(I, [pos[0]+ri, pos[1]+ri], [window_size[0]-(2*ri), window_size[1]-(2*ri)], radius=0, color=color)",
+                "    return I",
+                ""
+            ],
+            "Description": [
+                "Apply Bounding box at a location in an image"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "BoundingBox",
+            "Parameters": "Image, pos, window_size, radius=1, color=[0, 0, 0]"
+        },
+        {
+            "Code": [
+                "def GenerateSolidColourImage(Imgsize, color):",
+                "    # Generate an image with a single solid color",
+                "",
+                "    import numpy as np",
+                "",
+                "    return np.ones(Imgsize) * color",
+                ""
+            ],
+            "Description": [
+                "Generate an image with a single solid color"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "GenerateSolidColourImage",
+            "Parameters": "Imgsize, color"
+        },
+        {
+            "Code": [
+                "def GenerateColorShiftedImage(Image, ExpectedAvgColor):",
+                "    # Generate an image by shifting the colors in another image",
+                "",
+                "    import numpy as np",
+                "",
+                "    I = Image.copy().astype(int)",
+                "    avgC = np.round(np.sum(np.sum(I, axis=1), axis=0) / (I.shape[0]*I.shape[1])).astype(int)",
+                "    AvgDiff = np.clip(ExpectedAvgColor - avgC, 0, 255)",
+                "    I = np.clip(np.add(I, AvgDiff), 0, 255)",
+                "    return I.astype(np.uint8)",
+                ""
+            ],
+            "Description": [
+                "Generate an image by shifting the colors in another image"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "GenerateColorShiftedImage",
+            "Parameters": "Image, ExpectedAvgColor"
+        },
+        {
+            "Code": [
+                "def ResizeImage(Image, fillImgSize):",
+                "    # Resize an image using cv2 library",
+                "",
+                "    import cv2",
+                "",
+                "    return cv2.resize(Image, fillImgSize)",
+                ""
+            ],
+            "Description": [
+                "Resize an image using cv2 library"
+            ],
+            "Imports": [
+                "import cv2"
+            ],
+            "Name": "ResizeImage",
+            "Parameters": "Image, fillImgSize"
+        },
+        {
+            "Code": [
+                "def AveragePixelValue(Image):",
+                "    # Get the average pixel value in an image",
+                "",
+                "    import numpy as np",
+                "",
+                "    return (np.sum(np.sum(Image, axis=1), axis=0) / (Image.shape[0]*Image.shape[1])).astype(int)",
+                ""
+            ],
+            "Description": [
+                "Get the average pixel value in an image"
+            ],
+            "Imports": [
+                "import numpy as np"
+            ],
+            "Name": "AveragePixelValue",
+            "Parameters": "Image"
+        },
+        {
+            "Code": [
+                "def DownloadImageFromURL(url, savePath):",
+                "    # Downloads an image from a web link URL into specified path",
+                "",
+                "    import requests",
+                "",
+                "    f = open(savePath, 'wb')",
+                "    f.write(requests.get(url).content)",
+                "    f.close()",
+                ""
+            ],
+            "Description": [
+                "Downloads an image from a web link URL into specified path"
+            ],
+            "Imports": [
+                "import requests"
+            ],
+            "Name": "DownloadImageFromURL",
+            "Parameters": "url, savePath"
+        }
+    ]
+}

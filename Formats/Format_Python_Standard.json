@@ -9,6 +9,6 @@
     "ID_ImportsStart": "#IS",
     "ID_ImportsEnd": "#IE",
 
-    "Data_FuncName": "^def([^(]*)\\(",
-    "Data_FuncParams": "^def[^(]*\\((.*)\\)"
+    "Data_FuncName": "^.*def([^(]*)\\(",
+    "Data_FuncParams": "^.*def[^(]*\\((.*)\\)"
 }
