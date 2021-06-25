@@ -51,7 +51,9 @@ DEFAULT_REMOVEDFUNCTIONS_CACHEPATH = 'FunctionDatabases/Cache/RemovedFunctions.t
 PARSER_FORMATS = {
     "Python" : {
         "Python - Standard": "Formats/Format_Python_Standard.json"
-    }
+    },
+    "C": {},
+    "Verilog": {}
 }
 
 DATABASES = {
@@ -157,7 +159,7 @@ def UI_SelectDatabases():
 
     return USERINPUT_Language
 
-def UI_DisplayFunctionDetails(f):
+def UI_DisplayFunctionDetails(f, Language='Python'):
     st.markdown("### Function Details")
 
     col1, col2 = st.beta_columns([1, 5])
@@ -171,25 +173,25 @@ def UI_DisplayFunctionDetails(f):
 
     col1, col2 = st.beta_columns([1, 5])
     col1.markdown("Parameters")
-    col2.markdown("```python\n" + "(" + f['Parameters'] + ")")
+    col2.markdown("```" + Language.lower() + "\n" + "(" + f['Parameters'] + ")")
     
     col1, col2 = st.beta_columns([1, 5])
     col1.markdown("Imports")
     Imports = ['No Imports'] if len(f['Imports']) == 0 else f['Imports']
-    col2.markdown("```python\n" + '\n'.join(Imports))
+    col2.markdown("```" + Language.lower() + "\n" + '\n'.join(Imports))
 
     col1, col2 = st.beta_columns([1, 5])
     col1.markdown("Code")
-    col2.markdown("```python\n" + '\n'.join(f['Code']))
+    col2.markdown("```" + Language.lower() + "\n" + '\n'.join(f['Code']))
 
-def UI_SelectFunction(functions, name="Added", CodeWindow=st, FuncCount=st, FuncSelect=st):
+def UI_SelectFunction(functions, name="Added", CodeWindow=st, FuncCount=st, FuncSelect=st, Language='Python'):
     DisplayNames = GetFunctionDisplayNames(functions)
     FuncCount.markdown("**" + str(len(DisplayNames)) + "** " + name + " Functions")
     FunctionChoice = FuncSelect.selectbox(name + " Functions", ["Select Function"] + DisplayNames)
     FunctionChoiceIndex = -1
     if not FunctionChoice == 'Select Function':
         FunctionChoiceIndex = DisplayNames.index(FunctionChoice)
-        CodeWindow.markdown("```python\n" + '\n'.join(functions[FunctionChoiceIndex]['Code']))
+        CodeWindow.markdown("```" + Language.lower() + "\n" + '\n'.join(functions[FunctionChoiceIndex]['Code']))
     else:
         CodeWindow.markdown("")
     return FunctionChoiceIndex
@@ -228,7 +230,7 @@ def search_functions():
     USERINPUT_ExactMatchChoice = st.selectbox("Exact Match Functions", ["Select Function"] + directMatchFunctions_DisplayNames)
     if not USERINPUT_ExactMatchChoice == 'Select Function':
         USERINPUT_ExactMatchChoiceIndex = directMatchFunctions_DisplayNames.index(USERINPUT_ExactMatchChoice)
-        UI_DisplayFunctionDetails(directMatchFunctions[USERINPUT_ExactMatchChoiceIndex])
+        UI_DisplayFunctionDetails(directMatchFunctions[USERINPUT_ExactMatchChoiceIndex], Language=USERINPUT_Language)
 
     # Substring Matches
     st.markdown("## Related Matches")
@@ -241,7 +243,7 @@ def search_functions():
     USERINPUT_RelatedMatchChoice = st.selectbox("Related Match Functions", ["Select Function"] + matchFunctions_DisplayNames)
     if not USERINPUT_RelatedMatchChoice == 'Select Function':
         USERINPUT_RelatedMatchChoiceIndex = matchFunctions_DisplayNames.index(USERINPUT_RelatedMatchChoice)
-        UI_DisplayFunctionDetails(matchFunctions_List[USERINPUT_RelatedMatchChoiceIndex])
+        UI_DisplayFunctionDetails(matchFunctions_List[USERINPUT_RelatedMatchChoiceIndex], Language=USERINPUT_Language)
 
 def function_database():
     global FUNCTIONS
@@ -260,7 +262,7 @@ def function_database():
     USERINPUT_FunctionChoice = st.selectbox("Exact Match Functions", ["Select Function"] + Functions_DisplayNames)
     if not USERINPUT_FunctionChoice == 'Select Function':
         USERINPUT_FunctionChoiceIndex = Functions_DisplayNames.index(USERINPUT_FunctionChoice)
-        UI_DisplayFunctionDetails(FUNCTIONS[USERINPUT_Language][USERINPUT_FunctionChoiceIndex])
+        UI_DisplayFunctionDetails(FUNCTIONS[USERINPUT_Language][USERINPUT_FunctionChoiceIndex], Language=USERINPUT_Language)
 
     # Add or Remove Existing Functions
     # Retreive Removed Cache Functions
@@ -275,13 +277,13 @@ def function_database():
     AddedFuncCount = col1.empty()
     AddedFuncSelect = col1.empty()
     AddedCode = col1.empty()
-    USERINPUT_AddedFunctionChoiceIndex = UI_SelectFunction(AddedFunctions, name="Added", CodeWindow=AddedCode, FuncCount=AddedFuncCount, FuncSelect=AddedFuncSelect)
+    USERINPUT_AddedFunctionChoiceIndex = UI_SelectFunction(AddedFunctions, name="Added", CodeWindow=AddedCode, FuncCount=AddedFuncCount, FuncSelect=AddedFuncSelect, Language=USERINPUT_Language)
 
     RemovedFuncCount = col3.empty()
     RemovedFuncSelect = col3.empty()
     RemovedCode = col3.empty()
     RemovedFuncCount.markdown("**" + str(len(RemovedFunctions_DisplayNames)) + "** Removed Functions")
-    USERINPUT_RemovedFunctionChoiceIndex = UI_SelectFunction(RemovedFunctions, name="Removed", CodeWindow=RemovedCode, FuncCount=RemovedFuncCount, FuncSelect=RemovedFuncSelect)
+    USERINPUT_RemovedFunctionChoiceIndex = UI_SelectFunction(RemovedFunctions, name="Removed", CodeWindow=RemovedCode, FuncCount=RemovedFuncCount, FuncSelect=RemovedFuncSelect, Language=USERINPUT_Language)
 
     col2.markdown("")
     col2.markdown("")
@@ -294,8 +296,8 @@ def function_database():
     if USERINPUT_Remove or USERINPUT_Add:
         SetRemovedFunctions(RemovedIndices)
         AddedFunctions, RemovedFunctions, AddedIndices, RemovedIndices = GetRemovedFunctions(FUNCTIONS[USERINPUT_Language])
-        USERINPUT_AddedFunctionChoiceIndex = UI_SelectFunction(AddedFunctions, name="Added", CodeWindow=AddedCode, FuncCount=AddedFuncCount, FuncSelect=AddedFuncSelect)
-        USERINPUT_RemovedFunctionChoiceIndex = UI_SelectFunction(RemovedFunctions, name="Removed", CodeWindow=RemovedCode, FuncCount=RemovedFuncCount, FuncSelect=RemovedFuncSelect)
+        USERINPUT_AddedFunctionChoiceIndex = UI_SelectFunction(AddedFunctions, name="Added", CodeWindow=AddedCode, FuncCount=AddedFuncCount, FuncSelect=AddedFuncSelect, Language=USERINPUT_Language)
+        USERINPUT_RemovedFunctionChoiceIndex = UI_SelectFunction(RemovedFunctions, name="Removed", CodeWindow=RemovedCode, FuncCount=RemovedFuncCount, FuncSelect=RemovedFuncSelect, Language=USERINPUT_Language)
 
     # Download Database
     if st.button('Download Database'):
@@ -322,8 +324,13 @@ def parse_code():
     if USERINPUT_ParserName == "Select Parser":
         return
     Parser = Parsers[USERINPUT_ParserName]
+    ParserFormatExample = "\n".join(json.load(open(Parser, 'r'))["Format_Example"])
+    st.markdown("### Format Example")
+    st.markdown('```' + USERINPUT_Language.lower() + '\n' + ParserFormatExample)
+
     # Get Code
-    USERINPUT_Code = st.text_area("Code", "")
+    st.markdown("## Enter Code to Parse")
+    USERINPUT_Code = st.text_area("Code", ParserFormatExample)
 
     # Process Inputs
     # Parse Code
@@ -338,7 +345,7 @@ def parse_code():
     USERINPUT_FunctionChoice = st.selectbox("Exact Match Functions", ["Select Function"] + Functions_DisplayNames)
     if USERINPUT_FunctionChoice == 'Select Function': return
     USERINPUT_FunctionChoiceIndex = Functions_DisplayNames.index(USERINPUT_FunctionChoice)
-    UI_DisplayFunctionDetails(ParsedFunctions[USERINPUT_FunctionChoiceIndex])
+    UI_DisplayFunctionDetails(ParsedFunctions[USERINPUT_FunctionChoiceIndex], Language=USERINPUT_Language)
 
     # Download Database
     if st.button('Download Parsed Database'):

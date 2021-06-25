@@ -10,5 +10,21 @@
     "ID_ImportsEnd": "#IE",
 
     "Data_FuncName": "^.*def([^(]*)\\(",
-    "Data_FuncParams": "^.*def[^(]*\\((.*)\\)"
+    "Data_FuncParams": "^.*def[^(]*\\((.*)\\)",
+
+    "Format_Example": [
+        "#FS",
+        "def FunctionName(Params_1, Params_2=Value_2):",
+        "    #DS",
+        "    # Description Line 1",
+        "    # Description Line 2",
+        "    #DE",
+        "    #IS",
+        "    import module_1",
+        "    from package import module_2",
+        "    #IE",
+        "    Code.line(1)",
+        "    Code.line(2)",
+        "#FE"
+    ]
 }
