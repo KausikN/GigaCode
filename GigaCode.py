@@ -148,7 +148,58 @@ def ExtractPythonFunctions(data=None, file_path='', formatJSONPath='Format_Pytho
         Functions_dict.append(fd)
     return Functions_dict
 
+def SearchFunctions(FunctionsHashMap, query, searchOptions={'Name': True, 'Parameters': False, 'Imports': False, 'Description': False, 'Code': False}):
+    RequiredFunctionName = query
 
+    # Check Direct Matches in Name
+    directMatchFunctions = []
+    if RequiredFunctionName in FunctionsHashMap.keys():
+        directMatchFunctions.extend(FunctionsHashMap[RequiredFunctionName])
+
+    matchFunctions = {'Name': [], 'Parameters': [], 'Imports': [], 'Description': [], 'Code': []}
+
+    for key in FunctionsHashMap.keys():
+        # Name Substring Search
+        if searchOptions['Name']:
+            if RequiredFunctionName.lower().strip() in key.lower().strip():
+                matchFunctions['Name'].extend(FunctionsHashMap[key])
+                continue # Continue as anyways all funcs under this key are added
+        # Others Substring Search
+        if (searchOptions['Parameters'] or searchOptions['Imports'] or searchOptions['Description'] or searchOptions['Code']):
+            for f in FunctionsHashMap[key]:
+                # Check in Desc first
+                if searchOptions['Description']:
+                    if RequiredFunctionName.lower().strip() in '\n'.join(f['Description']).lower().strip():
+                        matchFunctions['Description'].append(f)
+                        continue
+                # Imports
+                if searchOptions['Imports']:
+                    if RequiredFunctionName.lower().strip() in '\n'.join(f['Imports']).lower().strip():
+                        matchFunctions['Imports'].append(f)
+                        continue
+                # Parameters
+                if searchOptions['Parameters']:
+                    if RequiredFunctionName.lower().strip() in f['Parameters'].lower().strip():
+                        matchFunctions['Parameters'].append(f)
+                        continue
+                # Code
+                if searchOptions['Code']:
+                    if RequiredFunctionName.lower().strip() in '\n'.join(f['Code']).lower().strip():
+                        matchFunctions['Code'].append(f)
+                        continue
+
+    return directMatchFunctions, matchFunctions
+
+
+def GenerateFunctionHashMap(Functions):
+    FunctionHashMap = {}
+
+    for f in Functions:
+        if not f['Name'] in FunctionHashMap.keys():
+            FunctionHashMap[f['Name']] = []
+        FunctionHashMap[f['Name']].append(f)
+    
+    return FunctionHashMap
 
 # Driver Code
 # Functions = ExtractPythonFunctions(file_path='Code/Python/ImageProcessing.py', formatJSONPath='Formats/Format_Python_Standard.json', tabSpace=4)

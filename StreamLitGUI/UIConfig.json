@@ -1,0 +1,10 @@
+{
+    "PROJECT_NAME": "GigaCode",
+    "PROJECT_LINK": "https://github.com/KausikN/GigaCode",
+
+    "PROJECT_DESC": "GigaCode is a functions and code parsing tool for various languages",
+
+    "PROJECT_README": "README.md",
+
+    "PROJECT_MODES": ["Search Functions", "Function Database", "Parse Code"]
+}
