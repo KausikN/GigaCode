@@ -1,0 +1,7 @@
+{
+    "repo_name": "GigaCode",
+    "requirements": [
+        "streamlit",
+        "tqdm"
+    ]
+}

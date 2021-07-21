@@ -1,12 +1,20 @@
 # GigaCode
  GigaCode is a functions and code parsing tool for various languages
 
- Hosted at [https://infinityjoker-codeparsers.herokuapp.com/](https://infinityjoker-codeparsers.herokuapp.com/)
-
 # GUI
+[![https://infinityjoker-apps.herokuapp.com/](https://pyheroku-badge.herokuapp.com/?app=infinityjoker-apps&style=plastic)](https://infinityjoker-apps.herokuapp.com/)
 
- - GUI Hosted using streamlit
- - Run [StartUI.sh](StartUI.sh) to view the app on your browser!
+ - GUI built using streamlit
+ - To use app locally,
+    - Clone the repo and run [StartUI.sh](StartUI.sh) to view the app on your browser!
+ - App is also hosted remotely on heroku using my common host app,
+    - [https://infinityjoker-apps.herokuapp.com/](https://infinityjoker-apps.herokuapp.com/)
+
+    - In the Common Host App, simply choose a project to load and click load and deploy.
+
+    - Then go ahead and use the app! :)
+
+    - If you want to change to another app, simply click on View Other Projects in top left and choose any other project and load and deploy.
 
 # Parse Functions
    
@@ -22,14 +30,6 @@
 
    - Store parsed function data in pickle/json files as database of functions for later use
 
-   - (OR) Run app_Database.py for storing new functions in a database pickle/json file
-
-   ![Database App](DocImages/DatabaseApp_1.PNG)
-
 # Search Functions
 
    - Search for functions by input query from database pickle/json files
-
-   - (OR Run app_FunctionsView.py for searching functions
-
-   ![Search App](DocImages/SearchApp_1.PNG)

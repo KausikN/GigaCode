@@ -1,0 +1,496 @@
+{
+    "name": "GigaCode",
+    "repoLink": "https://github.com/KausikN/GigaCode",
+    "localPath": "E:/Github Codes and Projects/Projects/GigaCode",
+    "modules": {
+        "app.py": {
+            "name": "app",
+            "type": "local",
+            "link": "https://github.com/KausikN/GigaCode/blob/master/app.py",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": [
+                "os.py",
+                "base64.py",
+                "streamlit.py",
+                "json.py",
+                "GigaCode.py"
+            ]
+        },
+        "GigaCode.py": {
+            "name": "GigaCode",
+            "type": "local",
+            "link": "https://github.com/KausikN/GigaCode/blob/master/GigaCode.py",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": [
+                "os.py",
+                "re.py",
+                "json.py"
+            ]
+        },
+        "Code/Python/AudioVideoProcessing.py": {
+            "name": "AudioVideoProcessing",
+            "type": "local",
+            "link": "https://github.com/KausikN/GigaCode/blob/master/Code/Python/AudioVideoProcessing.py",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "Code/Python",
+            "dependencies": [
+                "numpy.py",
+                "os.py",
+                "cv2.py",
+                "cv2.py",
+                "os/path.py",
+                "scipy/io.py",
+                "pygame.py",
+                "os.py",
+                "pickle.py",
+                "tqdm.py",
+                "time.py",
+                "wave.py",
+                "struct.py",
+                "winsound.py",
+                "os.py",
+                "cv2.py",
+                "cv2.py",
+                "cv2.py",
+                "numpy.py",
+                "numpy.py",
+                "wavfile.py",
+                "pickle.py",
+                "pygame.py",
+                "wavfile.py",
+                "pickle.py",
+                "time.py",
+                "wavfile.py",
+                "pygame.py",
+                "wavfile.py",
+                "pygame.py",
+                "pickle.py",
+                "wavfile.py",
+                "os.py",
+                "os.py",
+                "wavfile.py",
+                "os.py",
+                "wavfile.py",
+                "wave.py",
+                "winsound.py",
+                "winsound.py",
+                "winsound.py",
+                "time.py",
+                "winsound.py",
+                "time.py"
+            ]
+        },
+        "Code/Python/BigDataAnalytics.py": {
+            "name": "BigDataAnalytics",
+            "type": "local",
+            "link": "https://github.com/KausikN/GigaCode/blob/master/Code/Python/BigDataAnalytics.py",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "Code/Python",
+            "dependencies": [
+                "random.py",
+                "matplotlib.pyplot.py",
+                "numpy.py",
+                "seaborn.py",
+                "plotly.express.py",
+                "pandas.py",
+                "statsmodels.api.py",
+                "pylab.py",
+                "pandas.py",
+                "random.py",
+                "numpy.py",
+                "numpy.py",
+                "matplotlib.pyplot.py",
+                "matplotlib.pyplot.py",
+                "numpy.py",
+                "matplotlib.pyplot.py",
+                "matplotlib.pyplot.py",
+                "seaborn.py",
+                "matplotlib.pyplot.py",
+                "seaborn.py",
+                "matplotlib.pyplot.py",
+                "matplotlib.pyplot.py",
+                "matplotlib.pyplot.py",
+                "seaborn.py",
+                "matplotlib.pyplot.py",
+                "seaborn.py",
+                "matplotlib.pyplot.py",
+                "matplotlib.pyplot.py",
+                "numpy.py",
+                "matplotlib.pyplot.py",
+                "pandas.py",
+                "plotly.express.py",
+                "plotly.express.py"
+            ]
+        },
+        "Code/Python/FileProcessing.py": {
+            "name": "FileProcessing",
+            "type": "local",
+            "link": "https://github.com/KausikN/GigaCode/blob/master/Code/Python/FileProcessing.py",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "Code/Python",
+            "dependencies": []
+        },
+        "Code/Python/Hardware.py": {
+            "name": "Hardware",
+            "type": "local",
+            "link": "https://github.com/KausikN/GigaCode/blob/master/Code/Python/Hardware.py",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "Code/Python",
+            "dependencies": [
+                "re.py",
+                "random.py"
+            ]
+        },
+        "Code/Python/ImageProcessing.py": {
+            "name": "ImageProcessing",
+            "type": "local",
+            "link": "https://github.com/KausikN/GigaCode/blob/master/Code/Python/ImageProcessing.py",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "Code/Python",
+            "dependencies": [
+                "random.py",
+                "cv2.py",
+                "numpy.py",
+                "matplotlib.pyplot.py",
+                "tqdm.py",
+                "json.py",
+                "imutils.py",
+                "math.py",
+                "tqdm.py",
+                "numpy.py",
+                "matplotlib.pyplot.py",
+                "numpy.py",
+                "random.py",
+                "numpy.py",
+                "numpy.py",
+                "numpy.py",
+                "numpy.py",
+                "numpy.py",
+                "tqdm.py",
+                "numpy.py",
+                "tqdm.py",
+                "imutils.py",
+                "numpy.py",
+                "numpy.py",
+                "tqdm.py",
+                "numpy.py",
+                "random.py",
+                "numpy.py",
+                "tqdm.py",
+                "numpy.py",
+                "numpy.py",
+                "tqdm.py",
+                "numpy.py",
+                "tqdm.py",
+                "numpy.py",
+                "tqdm.py",
+                "numpy.py",
+                "numpy.py",
+                "numpy.py",
+                "numpy.py",
+                "numpy.py",
+                "cv2.py",
+                "numpy.py"
+            ]
+        },
+        "Code/Python/Test.py": {
+            "name": "Test",
+            "type": "local",
+            "link": "https://github.com/KausikN/GigaCode/blob/master/Code/Python/Test.py",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "Code/Python",
+            "dependencies": [
+                "random.py"
+            ]
+        },
+        "Code/Python/WebCodes.py": {
+            "name": "WebCodes",
+            "type": "local",
+            "link": "https://github.com/KausikN/GigaCode/blob/master/Code/Python/WebCodes.py",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "Code/Python",
+            "dependencies": [
+                "requests.py"
+            ]
+        },
+        "GigaCode_OLD/GigaCode_OLD.py": {
+            "name": "GigaCode_OLD",
+            "type": "local",
+            "link": "https://github.com/KausikN/GigaCode/blob/master/GigaCode_OLD/GigaCode_OLD.py",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "GigaCode_OLD",
+            "dependencies": [
+                "os.py",
+                "re.py"
+            ]
+        },
+        "UI_OLD/app_Database.py": {
+            "name": "app_Database",
+            "type": "local",
+            "link": "https://github.com/KausikN/GigaCode/blob/master/UI_OLD/app_Database.py",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "UI_OLD",
+            "dependencies": [
+                "GigaCode.py",
+                "os.py",
+                "json.py",
+                "tkinter.py",
+                "tkinter.py",
+                "pickle.py",
+                "tqdm.py",
+                "PIL.py",
+                "tkinter.py"
+            ]
+        },
+        "UI_OLD/app_FunctionsView.py": {
+            "name": "app_FunctionsView",
+            "type": "local",
+            "link": "https://github.com/KausikN/GigaCode/blob/master/UI_OLD/app_FunctionsView.py",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "UI_OLD",
+            "dependencies": [
+                "os.py",
+                "tkinter.py",
+                "tkinter.py",
+                "pickle.py",
+                "tqdm.py",
+                "PIL.py",
+                "tkinter.py"
+            ]
+        },
+        "imutils.py": {
+            "name": "imutils",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "statsmodels.api.py": {
+            "name": "statsmodels.api",
+            "type": "missing",
+            "link": "",
+            "parentDir": "",
+            "subDir": "",
+            "dependencies": []
+        },
+        "math.py": {
+            "name": "math",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "time.py": {
+            "name": "time",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "matplotlib.pyplot.py": {
+            "name": "matplotlib.pyplot",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "PIL.py": {
+            "name": "PIL",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "os.py": {
+            "name": "os",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "os/path.py": {
+            "name": "path",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "os",
+            "dependencies": []
+        },
+        "re.py": {
+            "name": "re",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "wavfile.py": {
+            "name": "wavfile",
+            "type": "missing",
+            "link": "",
+            "parentDir": "",
+            "subDir": "",
+            "dependencies": []
+        },
+        "winsound.py": {
+            "name": "winsound",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "plotly.express.py": {
+            "name": "plotly.express",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "pandas.py": {
+            "name": "pandas",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "requests.py": {
+            "name": "requests",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "pylab.py": {
+            "name": "pylab",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "struct.py": {
+            "name": "struct",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "streamlit.py": {
+            "name": "streamlit",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "wave.py": {
+            "name": "wave",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "scipy/io.py": {
+            "name": "io",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "scipy",
+            "dependencies": []
+        },
+        "random.py": {
+            "name": "random",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "tqdm.py": {
+            "name": "tqdm",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "tkinter.py": {
+            "name": "tkinter",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "pygame.py": {
+            "name": "pygame",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "json.py": {
+            "name": "json",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "numpy.py": {
+            "name": "numpy",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "pickle.py": {
+            "name": "pickle",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "seaborn.py": {
+            "name": "seaborn",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "cv2.py": {
+            "name": "cv2",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        },
+        "base64.py": {
+            "name": "base64",
+            "type": "inbuilt",
+            "link": "",
+            "parentDir": "E:/Github Codes and Projects/Projects/GigaCode",
+            "subDir": "",
+            "dependencies": []
+        }
+    }
+}
