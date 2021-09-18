@@ -1,0 +1,107 @@
+{
+    "Funcs": [
+        {
+            "language": "c",
+            "name": "Haha",
+            "params": [
+                {
+                    "name": "h",
+                    "desc": "",
+                    "default_value": "{\"value\": null}",
+                    "type": [
+                        "int"
+                    ]
+                },
+                {
+                    "name": "x",
+                    "desc": "",
+                    "default_value": "{\"value\": null}",
+                    "type": [
+                        "int"
+                    ]
+                }
+            ],
+            "desc": "",
+            "imports": [],
+            "code": null,
+            "return": {
+                "type": [
+                    "int"
+                ]
+            }
+        },
+        {
+            "language": "c",
+            "name": "Hoho",
+            "params": [
+                {
+                    "name": "a",
+                    "desc": "",
+                    "default_value": "{\"value\": null}",
+                    "type": [
+                        "char"
+                    ]
+                },
+                {
+                    "name": "b",
+                    "desc": "",
+                    "default_value": "{\"value\": null}",
+                    "type": [
+                        "char"
+                    ]
+                }
+            ],
+            "desc": "",
+            "imports": [],
+            "code": null,
+            "return": {
+                "type": [
+                    "char"
+                ]
+            }
+        },
+        {
+            "language": "c",
+            "name": "Hehe",
+            "params": [
+                {
+                    "name": "a",
+                    "desc": "",
+                    "default_value": "{\"value\": null}",
+                    "type": [
+                        "char"
+                    ]
+                },
+                {
+                    "name": "b",
+                    "desc": "",
+                    "default_value": "{\"value\": null}",
+                    "type": [
+                        "char"
+                    ]
+                }
+            ],
+            "desc": "",
+            "imports": [],
+            "code": null,
+            "return": {
+                "type": [
+                    "int"
+                ]
+            }
+        },
+        {
+            "language": "c",
+            "name": "main",
+            "params": [],
+            "desc": "",
+            "imports": [],
+            "code": null,
+            "return": {
+                "type": [
+                    "int"
+                ]
+            }
+        }
+    ]
+}

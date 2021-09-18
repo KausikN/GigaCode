@@ -1,0 +1,104 @@
+{
+    "Funcs": [
+        {
+            "language": "python",
+            "name": "AA",
+            "params": [
+                {
+                    "name": "x",
+                    "desc": "",
+                    "default_value": "{\"value\": null}",
+                    "type": "bool"
+                },
+                {
+                    "name": "y",
+                    "desc": "",
+                    "default_value": "{\"value\": null}",
+                    "type": null
+                },
+                {
+                    "name": "z",
+                    "desc": "",
+                    "default_value": "{\"value\": 2}",
+                    "type": "int"
+                },
+                {
+                    "name": "h",
+                    "desc": "",
+                    "default_value": "{\"value\": \",):\"}",
+                    "type": null
+                }
+            ],
+            "desc": "",
+            "imports": [
+                {
+                    "name": "numpy",
+                    "dependency_path": [
+                        ""
+                    ]
+                },
+                {
+                    "name": "pyplot",
+                    "dependency_path": [
+                        "matplotlib"
+                    ]
+                },
+                {
+                    "name": "pyplot",
+                    "dependency_path": [
+                        "matplotlib"
+                    ]
+                },
+                {
+                    "name": "cm",
+                    "dependency_path": [
+                        "matplotlib"
+                    ]
+                },
+                {
+                    "name": "log2",
+                    "dependency_path": [
+                        "math"
+                    ]
+                }
+            ],
+            "code": "def AA(x : bool, y, z: int =2, h=\",):\"):\n    import numpy as np\n    import matplotlib.pyplot as plt\n    from matplotlib import pyplot, cm\n    from math import log2 as log\n    a = sys.stderr\n    cc = \"qd\"\n    return cc"
+        },
+        {
+            "language": "python",
+            "name": "BB",
+            "params": [
+                {
+                    "name": "x",
+                    "desc": "",
+                    "default_value": "{\"value\": null}",
+                    "type": null
+                },
+                {
+                    "name": "y",
+                    "desc": "",
+                    "default_value": "{\"value\": null}",
+                    "type": null
+                }
+            ],
+            "desc": "",
+            "imports": [],
+            "code": "def BB(x, y):\n    ce = 2\n    return None"
+        },
+        {
+            "language": "python",
+            "name": "CC",
+            "params": [
+                {
+                    "name": "x",
+                    "desc": "",
+                    "default_value": "{\"value\": true}",
+                    "type": null
+                }
+            ],
+            "desc": "",
+            "imports": [],
+            "code": "def CC(x=True):\n    cd = [1, \"1\", 2, \"2\"]\n    ccc = BB(1, \"2\")\n    return cd"
+        }
+    ]
+}

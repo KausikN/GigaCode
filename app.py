@@ -162,25 +162,25 @@ def UI_SelectDatabases():
 def UI_DisplayFunctionDetails(f, Language='Python'):
     st.markdown("### Function Details")
 
-    col1, col2 = st.beta_columns([1, 5])
+    col1, col2 = st.columns([1, 5])
     col1.markdown("Name")
     col2.markdown("```\n" + f['Name'])
 
-    col1, col2 = st.beta_columns([1, 5])
+    col1, col2 = st.columns([1, 5])
     col1.markdown("Description")
     Description = ['No Description'] if len(f['Description']) == 0 else f['Description']
     col2.markdown("```\n" + '\n'.join(Description))
 
-    col1, col2 = st.beta_columns([1, 5])
+    col1, col2 = st.columns([1, 5])
     col1.markdown("Parameters")
     col2.markdown("```" + Language.lower() + "\n" + "(" + f['Parameters'] + ")")
     
-    col1, col2 = st.beta_columns([1, 5])
+    col1, col2 = st.columns([1, 5])
     col1.markdown("Imports")
     Imports = ['No Imports'] if len(f['Imports']) == 0 else f['Imports']
     col2.markdown("```" + Language.lower() + "\n" + '\n'.join(Imports))
 
-    col1, col2 = st.beta_columns([1, 5])
+    col1, col2 = st.columns([1, 5])
     col1.markdown("Code")
     col2.markdown("```" + Language.lower() + "\n" + '\n'.join(f['Code']))
 
@@ -212,7 +212,7 @@ def search_functions():
     USERINPUT_SearchQuery = st.text_input("Enter Search Query", "BubbleSort")
 
     searchOptions = {'Name': True, 'Parameters': False, 'Imports': False, 'Description': False, 'Code': False}
-    col1, col2, col3, col4 = st.beta_columns(4)
+    col1, col2, col3, col4 = st.columns(4)
     searchOptions['Description'] = col1.checkbox("Search Descriptions?")
     searchOptions['Imports'] = col2.checkbox("Search Imports?")
     searchOptions['Parameters'] = col3.checkbox("Search Parameters?")
@@ -273,7 +273,7 @@ def function_database():
     USERINPUT_AddedFunctionChoiceIndex = -1
     USERINPUT_RemovedFunctionChoiceIndex = -1
 
-    col1, col2, col3 = st.beta_columns([5, 1, 5])
+    col1, col2, col3 = st.columns([5, 1, 5])
     AddedFuncCount = col1.empty()
     AddedFuncSelect = col1.empty()
     AddedCode = col1.empty()
